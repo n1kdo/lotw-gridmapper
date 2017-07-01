@@ -63,7 +63,7 @@ foreach ($valid_args as &$a) {
 }
 error_log("url: " . $url);
 $login = $_REQUEST['login'];
-if ($login === 'n1kdo') {
+if ($login === 'xxxn1kdo') {
     $url = 'lotwreport.adi'; // DEBUG FIXME!
     error_log('debug local file mode');
 }
@@ -73,7 +73,6 @@ $qsos = Array();
 
 $response = file_get_contents($url);
 error_log("got data back from lotw");
-#var_dump($http_response_header);
 $keepgoing = true;
 $separator = "\r\n";
 $line = trim(strtok($response, $separator));
