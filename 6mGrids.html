@@ -30,80 +30,98 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -->
 <head>
-<style>
-    BODY {
-        margin: 0;
-        border: 0;
-        font-family: sans-serif;
-    }
+    <style>
+        BODY {
+            margin: 0;
+            border: 0;
+            font-family: sans-serif;
+        }
 
-    FORM {
-        text-align: center;
-        display: inline-block;
-    }
+        FORM {
+            text-align: center;
+            display: inline-block;
+            font-size: 2vh;
+        }
 
-    .header {
-        height: 100px;
-        Zbackground-color: #eee;
-    }
+        .header {
+            height: 8vh;
+            font-size: 7vh;
+            text-align: center;
+        }
 
-    .headerLeft {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 50%;
-        margin:auto;
-        Zbackground-color: red;
-    }
-    .headerLeft P {
-        margin: 4px;
-    }
-    .headerRight {
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: 50%;
-        text-align: right;
-        Zbackground-color: cyan;
-    }
+        .formField {
+            width: 10vw;
+            font-size: 2vh;
+            height: 2vh;
+            text-align: left;
+        }
 
-    .headerRight P {
-        margin: 4px;
-    }
+        .map {
+            display: none;
+            width: 100%;
+            height: 90vh;
+            margin: auto;
+        }
 
-    .formField {
-        width: 4em;
-    }
+        .floatingPanel {
+            display: inline-block;
+            width: 34vw;
+            left: 33vw;
+            top: 33vh;
+            position: fixed;
+            border-color: #ccc;
+            border-width: 5px;
+            border-style: ridge;
+            z-index: 100;
+            background-color: aliceblue;
+        }
 
-    .map {
-        display: none;
-        width: 100%;
-        height: 85vh;
-        margin: auto;
-    }
+        .loginFormDiv {
+            text-align: center;
+        }
 
-    .footer {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        text-align: right;
-        vertical-align: bottom;
-        height: 2vh;
-        font-size: 2vh;
-        background-color: #eee;
-    }
-</style>
+        .footerLeft {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            vertical-align: bottom;
+            height: 2vh;
+            font-size: 2vh;
+        }
+
+        .footerMid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right : 0;
+            text-align: center;
+            vertical-align: bottom;
+            height: 2vh;
+            font-size: 2vh;
+        }
+
+        .footerRight {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            text-align: right;
+            vertical-align: bottom;
+            height: 2vh;
+            font-size: 2vh;
+        }
+    </style>
+
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD19s_wRG_27R9nDQ3jLoriOLaHThReZv0" defer></script>
     <script src="https://rawgit.com/googlemaps/js-map-label/gh-pages/src/maplabel-compiled.js" defer></script>
 </head>
 <body>
-<div id="title" class="header">
-    <div class="headerLeft">
-        <p>Plot Confirmed Grids on Map</p>
-        <p>This page can show you every grid you have confirmed for 6 meters on LogBook of the World.</p>
-    </div>
-    <div id="loginPanel" class="headerRight">
+
+<div id="header" class="header">
+    Show Map with 6M Grids Confirmed on LoTW
+</div>
+
+<div id="floatingPanel" class="floatingPanel">
+    <div id="loginFormDiv" class="loginFormDiv">
         <form id="loginForm">
             <table style="border: 0; border-collapse:collapse">
                 <tbody>
@@ -113,12 +131,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     </td>
                 </tr>
                 <tr>
-                    <td>Username:</td>
-                    <td><input type="text" maxlength="8" name="login" id="loginName" autofocus=true" class="formField"></td>
+                    <td style="text-align: right;">Username:</td>
+                    <td style="text-align: left;"><input type="text" maxlength="8" name="login" id="loginName" autofocus="true" class="formField">
+                    </td>
                 </tr>
                 <tr>
-                    <td>Password:</td>
-                    <td><input type="password" maxlength="8" name="password" id="password" class="formField"></td>
+                    <td style="text-align: right;">Password:</td>
+                    <td style="text-align: left;"><input type="password" maxlength="8" name="password" id="password" class="formField"></td>
                 </tr>
                 <tr>
                     <td colspan="2" align="center">
@@ -129,7 +148,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </table>
         </form>
     </div>
-    <div id="messagePanel" class="headerRight" style="display:none;">
+    <div id="messagePanel" class="loginFormDiv" style="display:none;">
         <div id="message">Please Wait.</div>
         <div id="messageButtonPanel" style="display:none;">
             <button type="button" onclick="resetLogin()">Try Again</button>
@@ -137,12 +156,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </div>
 </div>
 
-
-</div>
-
 <div id="map" class="map"></div>
-<!-- <div id="data" style="display:none"></div>
-<div id="footer" class="footer">N1KDO 20170629</div> -->
+
+<div id="footerLeft" class="footerLeft"></div>
+<div id="footerMid" class="footerMid"><a href="https://github.com/n1kdo/lotw-gridmapper">GitHub</a></div>
+<div id="footerRight" class="footerRight">N1KDO 20170701</div>
 
 <script>
     var map;
@@ -232,13 +250,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         var mapProp = {
             center: new google.maps.LatLng(37, -97),
             zoom: 4,
-            minZoom: 2,
+            minZoom: 2
         };
         map = new google.maps.Map(document.getElementById("map"), mapProp);
     }
 
     function processReceivedData(xhttp) {
         if (xhttp.status == 200) {
+            document.getElementById("floatingPanel").style.display = 'none';
             drawMap();
             var data = eval("(" + xhttp.responseText + ")");
             var grids = {};
@@ -263,16 +282,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             for (var sq in squares) {
                 s += squares[sq] + " ";
             }
-            document.getElementById("message").textContent = "Plotted " + Object.keys(grids).length + "Grid Squares";
+            var username = document.getElementById("loginName").value;
+            document.getElementById("header").innerHTML = username.toUpperCase() + " Grids worked on 6M";
+            document.getElementById("footerLeft").innerHTML = "" + Object.keys(grids).length + "Grid Squares";
+
             document.getElementById("messageButtonPanel").style.display = "block";
 
             y = window.innerHeight;
             document.getElementById("map").style.display = "block";
-            //document.getElementById("data").textContent = s;
         } else {
             document.getElementById("message").textContent = xhttp.responseText;
             document.getElementById("messagePanel").style.display = "block";
-            document.getElementById("info").style.display = "block";
+            document.getElementById("floatingPanel").style.display = 'inline-block';
         }
     }
 
@@ -289,23 +310,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function callLotw() {
+        document.getElementById("loginFormDiv").style.display = 'none';
+        document.getElementById("message").innerHTML = "<p>Please Wait...</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so...</p>";
+        document.getElementById("footerLeft").innerHTML = "";
+        document.getElementById("messageButtonPanel").style.display = "hide";
+        document.getElementById("messagePanel").style.display = "block";
         username = document.getElementById("loginName").value;
         password = document.getElementById("password").value;
         var url = "lotwaccess.php";
         var params = "login=" + username + "&password=" + password + "&qso_band=6m&qso_query=1&qso_qsl=yes&qso_qsldetail=yes";
         asyncLoad(url, params, processReceivedData);
-        document.getElementById("loginPanel").style.display = 'none';
-        document.getElementById("message").textContent = "Please Wait... Fetching QSLs from LoTW... This might take a minute or so...";
-        document.getElementById("messageButtonPanel").style.display = "hide";
-        document.getElementById("messagePanel").style.display = "block";
     }
 
     function resetLogin() {
         document.getElementById("messageButtonPanel").style.display = 'none';
         document.getElementById("messagePanel").style.display = 'none';
-        document.getElementById("loginPanel").style.display = 'block';
+        document.getElementById("floatingPanel").style.display = 'inline-block';
+        document.getElementById("loginFormDiv").style.display = 'block';
         document.getElementById("message").textContent = "";
-
+        document.getElementById("footerLeft").innerHTML = "";
     }
 </script>
 </body>
