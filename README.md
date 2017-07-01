@@ -6,11 +6,13 @@ I wanted to learn how to use Google Maps to display data.
 There are two pieces.
 
 * 6mGrids.html contains the just about everything except
-* lotwaccess.php is a proxy that allows data to be downloaded
-from Logbook Of The World without issues related to 
-single-origin-policy issues accessing a 3rd party site from 
-a web page.  It also converts the ADIF output into JSON which
-is easier for the javascript on the web page to parse
+
+* lotwaccess.php is a proxy and json converter
+ 
+lotwaccess.php provides a proxy (to work around the browser's 
+single-origin policy) that also converts the ADIF returned 
+from the Logbook Of The World web service into JSON data,
+which is much easier to work with in JavaScript.  
 
 If you decide to play with this, please get your own Google Maps
 API Key.
