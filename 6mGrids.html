@@ -65,8 +65,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         .floatingPanel {
             display: inline-block;
-            width: 34vw;
-            left: 33vw;
+            width: 40vw;
+            left: 30vw;
             top: 33vh;
             position: fixed;
             border: 5px ridge #ccc;
@@ -76,6 +76,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         .loginFormDiv {
             text-align: center;
+            margin: 1em;
         }
 
         .footerLeft {
@@ -129,12 +130,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;">Username:</td>
+                    <td style="text-align: right;"><label for="loginName">Username:</label></td>
                     <td style="text-align: left;"><input type="text" maxlength="12" name="login" id="loginName" autofocus="autofocus" class="formField">
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;">Password:</td>
+                    <td style="text-align: right;"><label for="password">Password:</label></td>
                     <td style="text-align: left;"><input type="password" maxlength="12" name="password" id="password" class="formField"></td>
                 </tr>
                 <tr>
@@ -147,8 +148,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </form>
     </div>
     <div id="messagePanel" class="loginFormDiv" style="display:none;">
-        <div id="message">Please Wait.</div>
-        <div id="messageButtonPanel" style="display:none;">
+        <div id="message" class="loginFormDiv">Please Wait.</div>
+        <div id="messageButtonPanel" class="loginFormDiv" style="display:none;">
             <button type="button" onclick="resetLogin()">Try Again</button>
         </div>
     </div>
@@ -164,21 +165,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     var map;
     function gridToCoordinates(gridSquare) {
         gridSquare = gridSquare.toLowerCase();
-        var a = "a".charCodeAt(0);
-        var zero = "0".charCodeAt(0);
+        const a = "a".charCodeAt(0);
+        const zero = "0".charCodeAt(0);
         var lon = (gridSquare.charCodeAt(0) - a) * 20.0;
         var lat = (gridSquare.charCodeAt(1) - a) * 10.0;
         lon += (gridSquare.charCodeAt(2) - zero) * 2.0;
         lat += (gridSquare.charCodeAt(3) - zero);
         lon = lon - 180;
         lat = lat - 90;
-        return [lat, lon];
+        return {lat: lat, lng: lon};
     }
 
     function addSquare(map, gridSquare) {
         var coords = gridToCoordinates(gridSquare);
-        var lat = coords[0];
-        var lon = coords[1];
+        var lat = coords['lat'];
+        var lon = coords['lng'];
         var mapcoords = [
             new google.maps.LatLng(lat, lon),
             new google.maps.LatLng(lat, lon + 2),
@@ -315,7 +316,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     function callLotw() {
         document.getElementById("loginFormDiv").style.display = 'none';
-        document.getElementById("message").innerHTML = "<p>Please Wait...</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so...</p>";
+        document.getElementById("message").innerHTML = "<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>";
         document.getElementById("footerLeft").innerHTML = "";
         document.getElementById("messageButtonPanel").style.display = "hide";
         document.getElementById("messagePanel").style.display = "block";
