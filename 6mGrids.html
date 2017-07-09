@@ -109,16 +109,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             font-size: 2vh;
         }
     </style>
-
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD19s_wRG_27R9nDQ3jLoriOLaHThReZv0" defer></script>
     <script src="https://rawgit.com/googlemaps/js-map-label/gh-pages/src/maplabel-compiled.js" defer></script>
 </head>
 <body>
-
 <div id="header" class="header">
     Map 6M Grids Confirmed on LoTW
 </div>
-
 <div id="floatingPanel" class="floatingPanel">
     <div id="loginFormDiv" class="loginFormDiv">
         <form id="loginForm">
@@ -154,15 +151,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </div>
     </div>
 </div>
-
 <div id="map" class="map"></div>
-
 <div id="footerLeft" class="footerLeft"></div>
 <div id="footerMid" class="footerMid"><a href="https://github.com/n1kdo/lotw-gridmapper">GitHub</a></div>
 <div id="footerRight" class="footerRight"><a href="https://www.n1kdo.com">N1KDO</a> 20170701</div>
-
 <script>
-    var map;
     function gridToCoordinates(gridSquare) {
         gridSquare = gridSquare.toLowerCase();
         const a = "a".charCodeAt(0);
@@ -250,56 +243,105 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             zoom: 4,
             minZoom: 2
         };
-        map = new google.maps.Map(document.getElementById("map"), mapProp);
+        return new google.maps.Map(document.getElementById("map"), mapProp);
+    }
+
+    function parse_adif_line(line) {
+        var result = [];
+        var stuff = line.match('<(.*)>(.*)');
+        if (stuff !== null) {
+            var s = stuff[1].split(":");
+            if (s !== null) {
+                result[0] = s[0].toLowerCase();
+                if (stuff[2] !== "") {
+                    result[1] = stuff[2]
+                }
+            }
+        }
+        return result;
     }
 
     function processReceivedData(xhttp) {
         if (xhttp.status === 200) {
-            document.getElementById("floatingPanel").style.display = 'none';
-            document.getElementById("map").style.display = "block";
-            drawMap();
-            var data = eval("(" + xhttp.responseText + ")");
-            var grids = {};
-            var s = "Grids: ";
-            for (var qk in data) {
-                var qso = data[qk];
-                if (qso['gridsquare']) {
-                    var gridsquare = qso['gridsquare'].toUpperCase();
+            text = xhttp.responseText;
+            var lines = text.split("\n");
+            var first_line = true;
+            var looks_like_adif = false;
+            var qsos = [];
+            var qso = {};
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (i === 0) {
+                    if (line.includes("ARRL Logbook of the World Status Report")) {
+                        looks_like_adif = true;
+                    } else {
+                        // most likely not the data we were expecting.
+                        i = lines.length;
+                    }
+                }
+                if (looks_like_adif) {
+                    var pieces = parse_adif_line(line);
+                    switch (pieces.length) {
+                        case 1:
+                            if (pieces[0] === "eoh") {
+                                qsos = [];
+                                qso = {};
+                            }
+                            if (pieces[0] === "eor") {
+                                qsos.push(qso);
+                                qso = {};
+                            }
+                            break;
+                        case 2:
+                            //alert("2: " + pieces[0] +":"+pieces[1]);
+                            qso[pieces[0]] = pieces[1];
+                            break;
+                    }
+                }
+            }
+
+            if (qsos.length > 0) { // data is good
+                document.getElementById("floatingPanel").style.display = 'none';
+                document.getElementById("map").style.display = "block";
+                var map = drawMap();
+                var num_grids = draw_grids(map, qsos);
+                var username = document.getElementById("loginName").value;
+                document.getElementById("header").innerHTML = username.toUpperCase() + " grids confirmed on 6M";
+                document.getElementById("footerLeft").innerHTML = "" + num_grids + " Confirmed Grid Squares";
+            } else {
+                document.getElementById("message").innerHTML = 'Logbook of the World login failed.'; // xhttp.responseText;
+                document.getElementById("messageButtonPanel").style.display = "block";
+                document.getElementById("messagePanel").style.display = "block";
+                document.getElementById("floatingPanel").style.display = 'inline-block';
+            }
+        }
+    }
+
+    function draw_grids(map, qsos) {
+        var grids = {};
+        var s = "Grids: ";
+        for (var i=0; i < qsos.length; i++) {
+            var qso = qsos[i];
+            if (qso['gridsquare'] !== undefined) {
+                var gridsquare = qso['gridsquare'].toUpperCase();
+                gridsquare = gridsquare.substr(0, 4);
+                if (grids[gridsquare] === undefined) {
+                    grids[gridsquare] = gridsquare;
+                    addSquare(map, gridsquare);
+                }
+            }
+            if (qso['vucc_grids'] !== undefined) {
+                var gridsquares = qso['vucc_grids'].toUpperCase().split(',');
+                for (var gridsquare of gridsquares) {
                     gridsquare = gridsquare.substr(0, 4);
                     if (grids[gridsquare] === undefined) {
                         grids[gridsquare] = gridsquare;
                         addSquare(map, gridsquare);
                     }
                 }
-                if (qso['vucc_grids'] !== undefined) {
-                    var gridsquares = qso['vucc_grids'].toUpperCase().split(',');
-                    for (var gridsquare of gridsquares) {
-                        gridsquare = gridsquare.substr(0, 4);
-                        if (grids[gridsquare] === undefined) {
-                            grids[gridsquare] = gridsquare;
-                            addSquare(map, gridsquare);
-                        }
-                    }
-                }
             }
-            var squares = [];
-            for (var gs in grids) {
-                var sq = grids[gs];
-                squares.push(sq);
-            }
-            squares.sort();
-            for (var sq in squares) {
-                s += squares[sq] + " ";
-            }
-            var username = document.getElementById("loginName").value;
-            document.getElementById("header").innerHTML = username.toUpperCase() + " grids confirmed on 6M";
-            document.getElementById("footerLeft").innerHTML = "" + Object.keys(grids).length + " Confirmed Grid Squares";
-        } else {
-            document.getElementById("message").innerHTML = 'Logbook of the World login failed.'; // xhttp.responseText;
-            document.getElementById("messageButtonPanel").style.display = "block";
-            document.getElementById("messagePanel").style.display = "block";
-            document.getElementById("floatingPanel").style.display = 'inline-block';
         }
+        return grids.length;
     }
 
     function asyncLoad(url, params, callback) {
@@ -322,7 +364,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         document.getElementById("messagePanel").style.display = "block";
         var username = document.getElementById("loginName").value;
         var password = document.getElementById("password").value;
-        var url = "lotwaccess.php";
+        var url = "lotwreport.php";
         var params = "login=" + username + "&password=" + password + "&qso_band=6m&qso_query=1&qso_qsl=yes&qso_qsldetail=yes";
         asyncLoad(url, params, processReceivedData);
     }

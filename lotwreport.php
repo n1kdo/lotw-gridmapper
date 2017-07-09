@@ -1,6 +1,7 @@
 <?php
 /*
-lotwaccess.php: proxy/json converter for ARRL LoTW lotwreport.adi web service.
+lotwreport.php: proxy for ARRL LoTW lotwreport.adi web service to avoid browser issues with
+Single-Origin Policy.  Serves web service from the same host as the script.
 
 LICENSE:
 
@@ -28,24 +29,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-function parseAdifLine($line) {
-    preg_match("/<(.*)>(.*)/", $line, $matches);
-    $result = array();
-    if (count($matches) > 1) {
-        $temp = $matches[1];
-        preg_match("/(.*):.*/", $temp, $match2);
-        if (count($match2) > 1) {
-            $result[0] = $match2[1];
-        } else {
-            $result[0] = $matches[1];
-        }
-        if (count($matches) > 2 && strlen($matches[2]) > 0) {
-            $result[1] = $matches[2];
-        }
-    }
-    return $result;
-}
-header("Content-type: text/text");
 $valid_args = array('login', 'password', 'qso_query',  'qso_qsl',
     'qso_qslsince', 'qso_qsorxsince', 'qso_owncall', 'qso_callsign',
     'qso_mode', 'qso_band', 'qso_dxcc',
@@ -65,50 +48,16 @@ error_log("url: " . $url);
 $login = $_REQUEST['login'];
 $password = $_REQUEST['password'];
 if ($login === 'n1kdo' && $password === '') {
-    $url = 'lotwreport.adi'; // DEBUG FIXME!
+    $response = file_get_contents('lotwreport.adi'); // DEBUG FIXME!
+    $http_response_header = array("HTTP/1.1 200 OK",
+        "Content-Type: application/x-arrl-adif",
+    );
     error_log('debug local file mode');
+} else {
+    $response = file_get_contents($url);
 }
-$firstLine = true;
-$qso = Array();
-$qsos = Array();
-
-$response = file_get_contents($url);
-error_log("got data back from lotw");
-$keepgoing = true;
-$separator = "\r\n";
-$line = trim(strtok($response, $separator));
-while ($line !== false && $keepgoing === true) {
-    if ($firstLine === true) {
-        $firstLine = false;
-        if ($line !== "ARRL Logbook of the World Status Report") {
-            error_log("LOTW failure Reply: " . $line);
-            header("HTTP/1.1 403 Forbidden");
-            header("Status: 403 Forbidden");
-            echo "403 Forbidden\n\n";
-            echo "Did not get expected response from lotw web service.\n\n";
-            echo "got:\n\n";
-            echo $line . "\n\n";
-            echo "--\n";
-            $keepgoing = false;
-        }
-    } else {
-        $foo = parseAdifLine($line);
-        if (count($foo) == 1) {
-            if ($foo[0] === "eor") {
-                $qsos[] = $qso;
-                $qso = Array();
-            }
-            if ($foo[0] === "eoh") {
-                $qso = Array();
-                $qsos = Array();
-            }
-        }
-        if (count($foo) == 2) {
-            $key = strtolower($foo[0]);
-            $qso[$key] = $foo[1];
-        }
-    }
-    $line = strtok($separator);
+foreach ($http_response_header as $header) {
+    header($header);
 }
-echo json_encode($qsos);
+echo $response;
 ?>
