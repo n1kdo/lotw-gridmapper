@@ -1,5 +1,7 @@
 # lotw-gridmapper
 
+![Example](n1kdo-6m-grids.png)
+
 `lotw-gridmapper` is a toy I made because I wanted it and 
 I wanted to learn how to use Google Maps to display data.
 
