@@ -154,7 +154,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div id="map" class="map"></div>
 <div id="footerLeft" class="footerLeft"></div>
 <div id="footerMid" class="footerMid"><a href="https://github.com/n1kdo/lotw-gridmapper">GitHub</a></div>
-<div id="footerRight" class="footerRight"><a href="https://www.n1kdo.com">N1KDO</a> 20170701</div>
+<div id="footerRight" class="footerRight"><a href="https://www.n1kdo.com">N1KDO</a> 20170725</div>
 <script>
     function gridToCoordinates(gridSquare) {
         gridSquare = gridSquare.toLowerCase();
@@ -341,7 +341,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 }
             }
         }
-        return grids.length;
+        return Object.keys(grids).length;
     }
 
     function asyncLoad(url, params, callback) {
