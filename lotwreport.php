@@ -44,17 +44,22 @@ foreach ($valid_args as &$a) {
         $argprefix = '&';
     }
 }
-error_log("url: " . $url);
+# error_log("url: " . $url);
 $login = $_REQUEST['login'];
 $password = $_REQUEST['password'];
 if ($login === 'n1kdo' && $password === '') {
-    $response = file_get_contents('lotwreport.adi'); // DEBUG FIXME!
+    $response = file_get_contents('lotwreport.adi');
     $http_response_header = array("HTTP/1.1 200 OK",
         "Content-Type: application/x-arrl-adif",
     );
     error_log('debug local file mode');
 } else {
     $response = file_get_contents($url);
+    if (login === 'n1kdo') {
+        $fp = fopen('lotwreport.adi', 'w');
+        fwrite($fp, $response);
+        fclose($fp);
+    }
 }
 foreach ($http_response_header as $header) {
     header($header);
