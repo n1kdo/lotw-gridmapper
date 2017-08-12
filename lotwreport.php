@@ -55,10 +55,12 @@ if ($login === 'n1kdo' && $password === '') {
     error_log('debug local file mode');
 } else {
     $response = file_get_contents($url);
-    if (login === 'n1kdo') {
+    if ($login === 'n1kdo') {
         $fp = fopen('lotwreport.adi', 'w');
-        fwrite($fp, $response);
-        fclose($fp);
+        if ($fp) {
+            fwrite($fp, $response);
+            fclose($fp);
+        }
     }
 }
 foreach ($http_response_header as $header) {
