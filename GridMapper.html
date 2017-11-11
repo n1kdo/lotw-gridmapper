@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<!--
+
+6mGrids.html -- read Logbook of the World, draw confirmed grids on a map.
+
+LICENSE:
+
+Copyright (c) 2017, Jeffrey B. Otterson, N1KDO
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<html>
+<head>
+    <title>Confirmed 6M Grids</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <style>
+        BODY {
+            margin: 0;
+            border: 0;
+            font-family: sans-serif;
+        }
+
+        FORM {
+            text-align: center;
+            display: inline-block;
+        }
+
+        .header {
+            height: 8vh;
+            font-size: 7vh;
+            text-align: center;
+        }
+
+        .formField {
+            width: 10em;
+            font-size: 2vh;
+            height: 2vh;
+            text-align: left;
+        }
+
+        .map {
+            display: none;
+            width: 100%;
+            height: 90vh;
+            margin: auto;
+        }
+
+        .floatingPanel {
+            display: inline-block;
+            width: 60vw;
+            left: 20vw;
+            top: 25vh;
+            position: fixed;
+            border: 5px ridge #ccc;
+            z-index: 100;
+            background-color: aliceblue;
+        }
+
+        .loginFormDiv {
+            text-align: center;
+            margin: 1em;
+        }
+
+        .footerLeft {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            vertical-align: bottom;
+            height: 2vh;
+            font-size: 2vh;
+        }
+
+        .footerMid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right : 0;
+            text-align: center;
+            vertical-align: bottom;
+            height: 2vh;
+            font-size: 2vh;
+        }
+
+        .footerRight {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            text-align: right;
+            vertical-align: bottom;
+            height: 2vh;
+            font-size: 2vh;
+        }
+
+        .bandLabel {
+            margin-right: 0.5em;
+            white-space: nowrap;
+        }
+
+        .bandRadio {
+            margin-right: 0px;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD19s_wRG_27R9nDQ3jLoriOLaHThReZv0" defer></script>
+    <script src="https://rawgit.com/googlemaps/js-map-label/gh-pages/src/maplabel-compiled.js" defer></script>
+</head>
+<body onload="loaded()">
+<div id="header" class="header">
+    Map Grids Confirmed on LoTW
+</div>
+<div id="floatingPanel" class="floatingPanel">
+    <div id="loginFormDiv" class="loginFormDiv">
+        <form id="loginForm">
+            <table style="border-spacing: 0.75em;">
+                <tbody>
+                <tr>
+                    <td colspan="2" align="center">
+                        Enter your <b>LoTW</b> credentials.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;"><label for="loginName">Username:</label></td>
+                    <td style="text-align: left;"><input maxlength="12" name="login" id="loginName" class="formField"></td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;"><label for="password">Password:</label></td>
+                    <td style="text-align: left;"><input type="password" maxlength="12" name="password" id="password" class="formField"></td>
+                </tr>
+               <tr>
+                    <td colspan="2">
+                        <label for="rbAll" class="bandLabel">
+                            <input type="radio" name="band" value="all" class="bandRadio" checked>
+                            All Bands
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="160m" class="bandRadio">
+                            160M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="80m" class="bandRadio">
+                            80M
+                        </label>
+                        <labelclass="bandLabel">
+                            <input type="radio" name="band" value="60m" class="bandRadio">
+                            60M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="40m" class="bandRadio">
+                            40M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="30m" class="bandRadio">
+                            30M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="20m" class="bandRadio">
+                            20M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="17m" class="bandRadio">
+                            17M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="15m" class="bandRadio">
+                            15M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="12m" class="bandRadio">
+                            12M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="10m" class="bandRadio">
+                            10M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="6m" class="bandRadio">
+                            6M
+                        </label>
+                        <label class="bandLabel">
+                            <input type="radio" name="band" value="2m" class="bandRadio">
+                            2M
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;"><label for="startDate">Start Date:</label></td>
+                    <td style="text-align: left;"><input type="date" id="startDate" value='1970-01-01' class="formField"></td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;"><label for="endDate">End Date:</label></td>
+                    <td style="text-align: left;"><input type="date" id="endDate" class="formField"></td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;"><label for="ffmaButton">Show Unworked FFMA:</label></td>
+                    <td style="text-align: left;"><input type="checkbox" id="ffmaButton"></td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <button type="button" onclick="callLotw()">Click Me!</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div id="messagePanel" class="loginFormDiv" style="display:none;">
+        <div id="message" class="loginFormDiv">Please Wait.</div>
+        <div id="messageButtonPanel" class="loginFormDiv" style="display:none;">
+            <button type="button" onclick="resetLogin()">Try Again</button>
+        </div>
+    </div>
+</div>
+<div id="map" class="map"></div>
+<div id="footerLeft" class="footerLeft"></div>
+<div id="footerMid" class="footerMid"><a href="https://github.com/n1kdo/lotw-gridmapper">GitHub</a></div>
+<div id="footerRight" class="footerRight"><a href="https://www.n1kdo.com">N1KDO</a> 20171110</div>
+<script>
+    const ffma_grids = [
+        'CM79','CM86','CM87','CM88','CM89','CM93','CM94','CM95','CM96','CM97','CM98','CM99',
+        'CN70','CN71','CN72','CN73','CN74','CN75','CN76','CN77','CN78','CN80','CN81','CN82',
+        'CN83','CN84','CN85','CN86','CN87','CN88','CN90','CN91','CN92','CN93','CN94','CN95',
+        'CN96','CN97','CN98','DL79','DL88','DL89','DL98','DL99','DM02','DM03','DM04','DM05',
+        'DM06','DM07','DM08','DM09','DM12','DM13','DM14','DM15','DM16','DM17','DM18','DM19',
+        'DM22','DM23','DM24','DM25','DM26','DM27','DM28','DM29','DM31','DM32','DM33','DM34',
+        'DM35','DM36','DM37','DM38','DM39','DM41','DM42','DM43','DM44','DM45','DM46','DM47',
+        'DM48','DM49','DM51','DM52','DM53','DM54','DM55','DM56','DM57','DM58','DM59','DM61',
+        'DM62','DM63','DM64','DM65','DM66','DM67','DM68','DM69','DM70','DM71','DM72','DM73',
+        'DM74','DM75','DM76','DM77','DM78','DM79','DM80','DM81','DM82','DM83','DM84','DM85',
+        'DM86','DM87','DM88','DM89','DM90','DM91','DM92','DM93','DM94','DM95','DM96','DM97',
+        'DM98','DM99','DN00','DN01','DN02','DN03','DN04','DN05','DN06','DN07','DN08','DN10',
+        'DN11','DN12','DN13','DN14','DN15','DN16','DN17','DN18','DN20','DN21','DN22','DN23',
+        'DN24','DN25','DN26','DN27','DN28','DN30','DN31','DN32','DN33','DN34','DN35','DN36',
+        'DN37','DN38','DN40','DN41','DN42','DN43','DN44','DN45','DN46','DN47','DN48','DN50',
+        'DN51','DN52','DN53','DN54','DN55','DN56','DN57','DN58','DN60','DN61','DN62','DN63',
+        'DN64','DN65','DN66','DN67','DN68','DN70','DN71','DN72','DN73','DN74','DN75','DN76',
+        'DN77','DN78','DN80','DN81','DN82','DN83','DN84','DN85','DN86','DN87','DN88','DN90',
+        'DN91','DN92','DN93','DN94','DN95','DN96','DN97','DN98','EL06','EL07','EL08','EL09',
+        'EL15','EL16','EL17','EL18','EL19','EL28','EL29','EL39','EL49','EL58','EL59','EL79',
+        'EL84','EL86','EL87','EL88','EL89','EL94','EL95','EL96','EL97','EL98','EL99','EM00',
+        'EM01','EM02','EM03','EM04','EM05','EM06','EM07','EM08','EM09','EM10','EM11','EM12',
+        'EM13','EM14','EM15','EM16','EM17','EM18','EM19','EM20','EM21','EM22','EM23','EM24',
+        'EM25','EM26','EM27','EM28','EM29','EM30','EM31','EM32','EM33','EM34','EM35','EM36',
+        'EM37','EM38','EM39','EM40','EM41','EM42','EM43','EM44','EM45','EM46','EM47','EM48',
+        'EM49','EM50','EM51','EM52','EM53','EM54','EM55','EM56','EM57','EM58','EM59','EM60',
+        'EM61','EM62','EM63','EM64','EM65','EM66','EM67','EM68','EM69','EM70','EM71','EM72',
+        'EM73','EM74','EM75','EM76','EM77','EM78','EM79','EM80','EM81','EM82','EM83','EM84',
+        'EM85','EM86','EM87','EM88','EM89','EM90','EM91','EM92','EM93','EM94','EM95','EM96',
+        'EM97','EM98','EM99','EN00','EN01','EN02','EN03','EN04','EN05','EN06','EN07','EN08',
+        'EN10','EN11','EN12','EN13','EN14','EN15','EN16','EN17','EN18','EN20','EN21','EN22',
+        'EN23','EN24','EN25','EN26','EN27','EN28','EN29','EN30','EN31','EN32','EN33','EN34',
+        'EN35','EN36','EN37','EN38','EN40','EN41','EN42','EN43','EN44','EN45','EN46','EN47',
+        'EN48','EN50','EN51','EN52','EN53','EN54','EN55','EN56','EN57','EN58','EN60','EN61',
+        'EN62','EN63','EN64','EN65','EN66','EN67','EN70','EN71','EN72','EN73','EN74','EN75',
+        'EN76','EN80','EN81','EN82','EN83','EN84','EN85','EN86','EN90','EN91','EN92','FM02',
+        'FM03','FM04','FM05','FM06','FM07','FM08','FM09','FM13','FM14','FM15','FM16','FM17',
+        'FM18','FM19','FM25','FM26','FM27','FM28','FM29','FN00','FN01','FN02','FN03','FN10',
+        'FN11','FN12','FN13','FN14','FN20','FN21','FN22','FN23','FN24','FN25','FN30','FN31',
+        'FN32','FN33','FN34','FN35','FN41','FN42','FN43','FN44','FN45','FN46','FN51','FN53',
+        'FN54','FN55','FN56','FN57','FN64','FN65','FN66','FN67'];
+
+    function loaded() {
+        var today = new Date().toISOString().split('T')[0];
+        var endDateInput = document.getElementById("endDate");
+        endDateInput.setAttribute('min', today);
+        endDate.value = today;
+    }
+
+    function gridToCoordinates(gridSquare) {
+        gridSquare = gridSquare.toLowerCase();
+        const a = "a".charCodeAt(0);
+        const zero = "0".charCodeAt(0);
+        let lon = (gridSquare.charCodeAt(0) - a) * 20.0;
+        let lat = (gridSquare.charCodeAt(1) - a) * 10.0;
+        lon += (gridSquare.charCodeAt(2) - zero) * 2.0;
+        lat += (gridSquare.charCodeAt(3) - zero);
+        lon = lon - 180;
+        lat = lat - 90;
+        return {lat: lat, lng: lon};
+    }
+
+    function addSquare(map, gridSquare) {
+        let coords = gridToCoordinates(gridSquare);
+        let lat = coords['lat'];
+        let lon = coords['lng'];
+        let mapcoords = [
+            new google.maps.LatLng(lat, lon),
+            new google.maps.LatLng(lat, lon + 2),
+            new google.maps.LatLng(lat + 1, lon + 2),
+            new google.maps.LatLng(lat + 1, lon),
+            new google.maps.LatLng(lat, lon)
+        ];
+
+        let square = new google.maps.Polygon({
+            path: mapcoords,
+            strokeColor: "#ff0000",
+            strokeOpacity: 1.0,
+            strokeWeight: 1,
+            fillColor: "#ff0000",
+            fillOpacity: 0.25
+        });
+        square.setMap(map);
+
+        new MapLabel({
+            text: gridSquare.toUpperCase(),
+            position: new google.maps.LatLng(lat + 0.7, lon + 1),
+            map: map,
+            fontSize: 48,
+            fontColor: "#000000",
+            strokeWeight: 8,
+            align: 'center',
+            minZoom: 7
+        });
+        new MapLabel({
+            text: gridSquare.toUpperCase(),
+            position: new google.maps.LatLng(lat + 0.8, lon + 1),
+            map: map,
+            fontSize: 24,
+            fontColor: "#000000",
+            strokeWeight: 8,
+            align: 'center',
+            minZoom: 6,
+            maxZoom: 6
+        });
+        new MapLabel({
+            text: gridSquare.toUpperCase(),
+            position: new google.maps.LatLng(lat + 0.7, lon + 1),
+            map: map,
+            fontSize: 12,
+            fontColor: "#000000",
+            strokeWeight: 4,
+            align: 'center',
+            minZoom: 5,
+            maxZoom: 5
+
+        });
+        new MapLabel({
+            text: gridSquare.toUpperCase(),
+            position: new google.maps.LatLng(lat + 0.6, lon + 1),
+            map: map,
+            fontSize: 8,
+            fontColor: "#000000",
+            strokeWeight: 2,
+            align: 'center',
+            minZoom: 4,
+            maxZoom: 4
+        });
+    }
+
+    function drawMap() {
+        let mapProp = {
+            center: new google.maps.LatLng(37, -97),
+            zoom: 4,
+            minZoom: 2
+        };
+        return new google.maps.Map(document.getElementById("map"), mapProp);
+    }
+
+    function parse_adif_line(line) {
+        let result = [];
+        let stuff = line.match('<(.*)>(.*)');
+        if (stuff !== null) {
+            let s = stuff[1].split(":");
+            if (s !== null) {
+                result[0] = s[0].toLowerCase();
+                if (stuff[2] !== "") {
+                    result[1] = stuff[2]
+                }
+            }
+        }
+        return result;
+    }
+
+    function processReceivedData(xhr) {
+        if (xhr.status === 200) {
+            let text = xhr.responseText;
+            let lines = text.split("\n");
+            let looks_like_adif = false;
+            let qsos = [];
+            let qso = {};
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (i === 0) {
+                    if (line.includes("ARRL Logbook of the World Status Report")) {
+                        looks_like_adif = true;
+                    } else {
+                        // most likely not the data we were expecting.
+                        i = lines.length;
+                    }
+                }
+                if (looks_like_adif) {
+                    let pieces = parse_adif_line(line);
+                    switch (pieces.length) {
+                        case 1:
+                            if (pieces[0] === "eoh") {
+                                qsos = [];
+                                qso = {};
+                            }
+                            if (pieces[0] === "eor") {
+                                qsos.push(qso);
+                                qso = {};
+                            }
+                            break;
+                        case 2:
+                            qso[pieces[0]] = pieces[1];
+                            break;
+                    }
+                }
+            }
+
+            if (qsos.length > 0) { // data is good
+                document.getElementById("floatingPanel").style.display = 'none';
+                document.getElementById("map").style.display = "block";
+                let ffmaMode = document.getElementById("ffmaButton").checked;
+                let map = drawMap();
+                let grids = getGridsFromQsos(qsos);
+                let username = document.getElementById("loginName").value;
+                let band = document.querySelector('input[name="band"]:checked').value;
+                if (ffmaMode) {
+                    let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
+                    draw_grids(map, missingGrids);
+                    document.getElementById("header").innerHTML = username.toUpperCase() + " Unconfirmed FFMA Grids";
+                    document.getElementById("footerLeft").innerHTML = "" + missingGrids.size + " Unconfirmed FFMA Grid Squares";
+                } else {
+                    draw_grids(map, grids);
+                    let title =  username.toUpperCase() + " grids confirmed"
+                    if (band != "all") {
+                        title = title + " on " + band;
+                    }
+                    document.getElementById("header").innerHTML = title;
+                    document.getElementById("footerLeft").innerHTML = "" + grids.size + " Confirmed Grid Squares";
+                }
+            } else {
+                document.getElementById("message").innerHTML = 'Logbook of the World login failed.'; // xhttp.responseText;
+                document.getElementById("messageButtonPanel").style.display = "block";
+                document.getElementById("messagePanel").style.display = "block";
+                document.getElementById("floatingPanel").style.display = 'inline-block';
+            }
+        }
+    }
+
+    function getGridsFromQsos(qsos) {
+        let grids = new Set();
+        for (let i=0; i < qsos.length; i++) {
+            let qso = qsos[i];
+            if (qso['gridsquare'] !== undefined) {
+                let gridsquare = qso['gridsquare'].toUpperCase();
+                gridsquare = gridsquare.substr(0, 4);
+                if (!grids.has(gridsquare)) {
+                    grids.add(gridsquare);
+                }
+            }
+            if (qso['vucc_grids'] !== undefined) {
+                let gridsquares = qso['vucc_grids'].toUpperCase().split(',');
+                for (let gridsquare of gridsquares) {
+                    gridsquare = gridsquare.substr(0, 4);
+                    if (!grids.has(gridsquare)) {
+                        grids.add(gridsquare);
+                    }
+                }
+            }
+        }
+        return grids;
+    }
+
+    function draw_grids(map, grids) {
+        for (let grid of grids) {
+            addSquare(map, grid);
+        }
+    }
+
+    function asyncLoad(url, callback) {
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                callback(this);
+            }
+        };
+        xhr.open("GET", url, true);
+        xhr.send();
+    }
+
+    function callLotw() {
+        document.getElementById("loginFormDiv").style.display = 'none';
+        document.getElementById("message").innerHTML = "<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>";
+        document.getElementById("footerLeft").innerHTML = "";
+        document.getElementById("messageButtonPanel").style.display = "hide";
+        document.getElementById("messagePanel").style.display = "block";
+        let username = document.getElementById("loginName").value;
+        let password = document.getElementById("password").value;
+        let band = document.querySelector('input[name="band"]:checked').value;
+        let url = "lotwreport.php" + "?login=" + username + "&password=" + password + "&qso_query=1&qso_qsl=yes&qso_qsldetail=yes";
+        if (band != "all") {
+            url = url + "&qso_band=" + band;
+        }
+        let startDate = document.getElementById("startDate").value;
+        let endDate = document.getElementById("endDate").value;
+        url = url + "&qso_startdate=" + startDate + "&qso_enddate=" + endDate;
+        asyncLoad(url, processReceivedData);
+    }
+
+    function resetLogin() {
+        document.getElementById("messageButtonPanel").style.display = 'none';
+        document.getElementById("messagePanel").style.display = 'none';
+        document.getElementById("floatingPanel").style.display = 'inline-block';
+        document.getElementById("loginFormDiv").style.display = 'block';
+        document.getElementById("message").innerHTML = "";
+        document.getElementById("footerLeft").innerHTML = "";
+    }
+</script>
+</body>
+</html>
