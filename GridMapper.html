@@ -17,7 +17,7 @@ modification, are permitted provided that the following conditions are met:
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <html>
 <head>
     <title>N1KDO LoTW Grid Mapper</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <meta name='viewport' content='width=device-width, initial-scale=0.75'>
     <style>
         BODY {
             margin: 0;
@@ -76,18 +76,36 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             background-color: aliceblue;
         }
 
+        .detailsPanel {
+            display: none;
+            position: absolute;
+            border: 5px ridge #ccc;
+            background-color: aliceblue;
+            left: 0;
+            bottom: 2vh;
+            padding: 0.25em;
+            z-index: 1;
+        }
+
         .loginFormDiv {
             text-align: center;
             margin: 1em;
         }
 
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            vertical-align: bottom;
+            height: 2vh;
+            font-size: 2vh;
+
+        }
         .footerLeft {
             position: absolute;
             bottom: 0;
             left: 0;
-            vertical-align: bottom;
-            height: 2vh;
-            font-size: 2vh;
         }
 
         .footerMid {
@@ -96,19 +114,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             left: 0;
             right : 0;
             text-align: center;
-            vertical-align: bottom;
-            height: 2vh;
-            font-size: 2vh;
+            margin: 0 auto;
+            width: 10vh;
         }
 
         .footerRight {
             position: absolute;
             right: 0;
             bottom: 0;
-            text-align: right;
-            vertical-align: bottom;
-            height: 2vh;
-            font-size: 2vh;
         }
 
         .bandLabel {
@@ -119,120 +132,161 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         .bandRadio {
             margin-right: 0px;
         }
+
+        .detailsButton {
+            margin: 1px;
+            position: relative;
+            top: 2px;
+        }
+
+        .detailsHeading {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .detailsTable {
+            border: 0;
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+
+        .detailsTable TH {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        .detailsTable TD {
+            border: 1px solid black;
+            border-collapse: collapse;
+            text-align: right;
+            width: 3em;
+        }
+
     </style>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD19s_wRG_27R9nDQ3jLoriOLaHThReZv0" defer></script>
-    <script src="https://rawgit.com/googlemaps/js-map-label/gh-pages/src/maplabel-compiled.js" defer></script>
+    <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyD19s_wRG_27R9nDQ3jLoriOLaHThReZv0' defer></script>
+    <script src='https://rawgit.com/googlemaps/js-map-label/gh-pages/src/maplabel-compiled.js' defer></script>
 </head>
-<body onload="loaded()">
-<div id="header" class="header">
+<body onload='loaded()'>
+<div id='header' class='header'>
     Map Grids Confirmed on LoTW
 </div>
-<div id="floatingPanel" class="floatingPanel">
-    <div id="loginFormDiv" class="loginFormDiv">
-        <form id="loginForm">
-            <table style="border-spacing: 0.75em;">
+<div id='floatingPanel' class='floatingPanel'>
+    <div id='loginFormDiv' class='loginFormDiv'>
+        <form id='loginForm'>
+            <table style='border-spacing: 0.75em;'>
                 <tbody>
                 <tr>
-                    <td colspan="2" align="center">
+                    <td colspan='2' align='center'>
                         Enter your <b>LoTW</b> credentials.
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;"><label for="loginName">Username:</label></td>
-                    <td style="text-align: left;"><input maxlength="12" name="login" id="loginName" class="formField"></td>
+                    <td style='text-align: right;'><label for='loginName'>Username:</label></td>
+                    <td style='text-align: left;'><input maxlength='12' name='login' id='loginName' class='formField' value='n1kdo'></td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;"><label for="password">Password:</label></td>
-                    <td style="text-align: left;"><input type="password" maxlength="12" name="password" id="password" class="formField"></td>
+                    <td style='text-align: right;'><label for='password'>Password:</label></td>
+                    <td style='text-align: left;'><input type='password' maxlength='12' name='password' id='password' class='formField'></td>
                 </tr>
                <tr>
-                    <td colspan="2">
-                        <label for="rbAll" class="bandLabel">
-                            <input type="radio" name="band" value="all" class="bandRadio" checked>
+                    <td colspan='2'>
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='all' class='bandRadio' checked>
                             All Bands
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="160m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='160m' class='bandRadio'>
                             160M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="80m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='80m' class='bandRadio'>
                             80M
                         </label>
-                        <labelclass="bandLabel">
-                            <input type="radio" name="band" value="60m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='60m' class='bandRadio'>
                             60M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="40m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='40m' class='bandRadio'>
                             40M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="30m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='30m' class='bandRadio'>
                             30M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="20m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='20m' class='bandRadio'>
                             20M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="17m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='17m' class='bandRadio'>
                             17M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="15m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='15m' class='bandRadio'>
                             15M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="12m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='12m' class='bandRadio'>
                             12M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="10m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='10m' class='bandRadio'>
                             10M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="6m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='6m' class='bandRadio'>
                             6M
                         </label>
-                        <label class="bandLabel">
-                            <input type="radio" name="band" value="2m" class="bandRadio">
+                        <label class='bandLabel'>
+                            <input type='radio' name='band' value='2m' class='bandRadio'>
                             2M
                         </label>
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;"><label for="startDate">Start Date:</label></td>
-                    <td style="text-align: left;"><input type="date" id="startDate" value='1970-01-01' class="formField"></td>
+                    <td style='text-align: right;'><label for='startDate'>Start Date:</label></td>
+                    <td style='text-align: left;'><input type='date' id='startDate' value='2018-01-01' class='formField'></td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;"><label for="endDate">End Date:</label></td>
-                    <td style="text-align: left;"><input type="date" id="endDate" class="formField"></td>
+                    <td style='text-align: right;'><label for='endDate'>End Date:</label></td>
+                    <td style='text-align: left;'><input type='date' id='endDate' class='formField'></td>
                 </tr>
                 <tr>
-                    <td style="text-align: right;"><label for="ffmaButton">Show Unworked FFMA:</label></td>
-                    <td style="text-align: left;"><input type="checkbox" id="ffmaButton"></td>
+                    <td style='text-align: right;'><label for='ffmaButton'>Show Unworked FFMA:</label></td>
+                    <td style='text-align: left;'><input type='checkbox' id='ffmaButton'></td>
                 </tr>
                 <tr>
-                    <td colspan="2" align="center">
-                        <button type="button" onclick="callLotw()">Click Me!</button>
+                    <td colspan='2' align='center'>
+                        <button type='button' onclick='callLotw()'>Click Me!</button>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </form>
     </div>
-    <div id="messagePanel" class="loginFormDiv" style="display:none;">
-        <div id="message" class="loginFormDiv">Please Wait.</div>
-        <div id="messageButtonPanel" class="loginFormDiv" style="display:none;">
-            <button type="button" onclick="resetLogin()">Try Again</button>
+    <div id='messagePanel' class='loginFormDiv' style='display:none;'>
+        <div id='message' class='loginFormDiv'>Please Wait.</div>
+        <div id='messageButtonPanel' class='loginFormDiv' style='display:none;'>
+            <button type='button' onclick='resetLogin()'>Try Again</button>
         </div>
     </div>
 </div>
-<div id="map" class="map"></div>
-<div id="footerLeft" class="footerLeft"></div>
-<div id="footerMid" class="footerMid"><a href="https://github.com/n1kdo/lotw-gridmapper">GitHub</a></div>
-<div id="footerRight" class="footerRight"><a href="https://www.n1kdo.com">N1KDO</a> 20171110</div>
+<div id='detailsPanel' class='detailsPanel'>
+stff
+</div>
+<div id='map' class='map'></div>
+<div class='footer'>
+<div id='footerLeft' class='footerLeft' style='display:none'>
+    <label>
+        <input type='checkbox' id='detailsButton' class='detailsButton' onClick='toggleDetails()'>
+        show details
+    </label>
+</div>
+<div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
+<div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20171110</div>
+</div>
 <script>
     const ffma_grids = [
         'CM79','CM86','CM87','CM88','CM89','CM93','CM94','CM95','CM96','CM97','CM98','CM99',
@@ -277,17 +331,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         'FN32','FN33','FN34','FN35','FN41','FN42','FN43','FN44','FN45','FN46','FN51','FN53',
         'FN54','FN55','FN56','FN57','FN64','FN65','FN66','FN67'];
 
+    const BANDS = ['160M', '80M', '40M', '30M', '20M', '17M', '15M', '12M', '10M', '6M', '2M', '70CM'];
+    const MODES = ['CW', 'DATA', 'PHONE'];
+
     function loaded() {
         var today = new Date().toISOString().split('T')[0];
-        var endDateInput = document.getElementById("endDate");
+        var endDateInput = document.getElementById('endDate');
         endDateInput.setAttribute('min', today);
         endDate.value = today;
     }
 
     function gridToCoordinates(gridSquare) {
         gridSquare = gridSquare.toLowerCase();
-        const a = "a".charCodeAt(0);
-        const zero = "0".charCodeAt(0);
+        const a = 'a'.charCodeAt(0);
+        const zero = '0'.charCodeAt(0);
         let lon = (gridSquare.charCodeAt(0) - a) * 20.0;
         let lat = (gridSquare.charCodeAt(1) - a) * 10.0;
         lon += (gridSquare.charCodeAt(2) - zero) * 2.0;
@@ -311,10 +368,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         let square = new google.maps.Polygon({
             path: mapcoords,
-            strokeColor: "#ff0000",
+            strokeColor: '#ff0000',
             strokeOpacity: 1.0,
             strokeWeight: 1,
-            fillColor: "#ff0000",
+            fillColor: '#ff0000',
             fillOpacity: 0.25
         });
         square.setMap(map);
@@ -324,7 +381,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             position: new google.maps.LatLng(lat + 0.7, lon + 1),
             map: map,
             fontSize: 48,
-            fontColor: "#000000",
+            fontColor: '#000000',
             strokeWeight: 8,
             align: 'center',
             minZoom: 7
@@ -334,7 +391,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             position: new google.maps.LatLng(lat + 0.8, lon + 1),
             map: map,
             fontSize: 24,
-            fontColor: "#000000",
+            fontColor: '#000000',
             strokeWeight: 8,
             align: 'center',
             minZoom: 6,
@@ -345,7 +402,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             position: new google.maps.LatLng(lat + 0.7, lon + 1),
             map: map,
             fontSize: 12,
-            fontColor: "#000000",
+            fontColor: '#000000',
             strokeWeight: 4,
             align: 'center',
             minZoom: 5,
@@ -357,7 +414,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             position: new google.maps.LatLng(lat + 0.6, lon + 1),
             map: map,
             fontSize: 8,
-            fontColor: "#000000",
+            fontColor: '#000000',
             strokeWeight: 2,
             align: 'center',
             minZoom: 4,
@@ -371,17 +428,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             zoom: 4,
             minZoom: 2
         };
-        return new google.maps.Map(document.getElementById("map"), mapProp);
+        return new google.maps.Map(document.getElementById('map'), mapProp);
     }
 
     function parse_adif_line(line) {
         let result = [];
         let stuff = line.match('<(.*)>(.*)');
         if (stuff !== null) {
-            let s = stuff[1].split(":");
+            let s = stuff[1].split(':');
             if (s !== null) {
                 result[0] = s[0].toLowerCase();
-                if (stuff[2] !== "") {
+                if (stuff[2] !== '') {
                     result[1] = stuff[2]
                 }
             }
@@ -392,14 +449,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function processReceivedData(xhr) {
         if (xhr.status === 200) {
             let text = xhr.responseText;
-            let lines = text.split("\n");
+            let lines = text.split('\n');
             let looks_like_adif = false;
             let qsos = [];
             let qso = {};
+            let numrec = 0;
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
                 if (i === 0) {
-                    if (line.includes("ARRL Logbook of the World Status Report")) {
+                    if (line.includes('ARRL Logbook of the World Status Report')) {
                         looks_like_adif = true;
                     } else {
                         // most likely not the data we were expecting.
@@ -410,75 +468,211 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     let pieces = parse_adif_line(line);
                     switch (pieces.length) {
                         case 1:
-                            if (pieces[0] === "eoh") {
+                            if (pieces[0] === 'eoh') {
                                 qsos = [];
                                 qso = {};
                             }
-                            if (pieces[0] === "eor") {
+                            if (pieces[0] === 'eor') {
                                 qsos.push(qso);
                                 qso = {};
                             }
                             break;
                         case 2:
-                            qso[pieces[0]] = pieces[1];
+                            if (pieces[0] === 'app_lotw_numrec') {
+                                numrec = parseInt(pieces[1], 0);
+                            } else {
+                                qso[pieces[0]] = pieces[1];
+                            }
                             break;
                     }
                 }
             }
-
-            if (qsos.length > 0) { // data is good
-                document.getElementById("floatingPanel").style.display = 'none';
-                document.getElementById("map").style.display = "block";
-                let ffmaMode = document.getElementById("ffmaButton").checked;
-                let map = drawMap();
-                let grids = getGridsFromQsos(qsos);
-                let username = document.getElementById("loginName").value;
-                let band = document.querySelector('input[name="band"]:checked').value;
-                if (ffmaMode) {
-                    let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
-                    draw_grids(map, missingGrids);
-                    document.getElementById("header").innerHTML = username.toUpperCase() + " Unconfirmed FFMA Grids";
-                    document.getElementById("footerLeft").innerHTML = "" + missingGrids.size + " Unconfirmed FFMA Grid Squares";
-                } else {
-                    draw_grids(map, grids);
-                    let title =  username.toUpperCase() + " grids confirmed"
-                    if (band != "all") {
-                        title = title + " on " + band;
+            if (looks_like_adif) {
+                if (qsos.length > 0) { // data is good
+                    document.getElementById('floatingPanel').style.display = 'none';
+                    document.getElementById('map').style.display = 'block';
+                    let ffmaMode = document.getElementById('ffmaButton').checked;
+                    let map = drawMap();
+                    let grids = getGridsFromQsos(qsos);
+                    let username = document.getElementById('loginName').value;
+                    let band = document.querySelector('input[name="band"]:checked').value;
+                    calculateDetails(qsos);
+                    if (ffmaMode) {
+                        let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
+                        draw_grids(map, missingGrids);
+                        document.getElementById('header').innerHTML = username.toUpperCase() + ' Unconfirmed FFMA Grids';
+                        document.getElementById('detailsPanel').innerHTML = '' + missingGrids.size + ' Unconfirmed FFMA Grid Squares';
+                        document.getElementById('footerLeft').style.display = 'block';
+                    } else {
+                        draw_grids(map, grids);
+                        let title = username.toUpperCase() + ' grids confirmed'
+                        if (band != 'all') {
+                            title = title + ' on ' + band;
+                        }
+                        document.getElementById('header').innerHTML = title;
+                        // document.getElementById('detailsPanel').innerHTML = '' + grids.size + ' Confirmed Grid Squares';
+                        document.getElementById('footerLeft').style.display = 'block';
                     }
-                    document.getElementById("header").innerHTML = title;
-                    document.getElementById("footerLeft").innerHTML = "" + grids.size + " Confirmed Grid Squares";
+                } else {
+                    document.getElementById('message').innerHTML = '' + numrec + ' QSLs were selected.';
+                    document.getElementById('messageButtonPanel').style.display = 'block';
+                    document.getElementById('messagePanel').style.display = 'block';
+                    document.getElementById('floatingPanel').style.display = 'inline-block';
                 }
             } else {
-                document.getElementById("message").innerHTML = 'Logbook of the World login failed.'; // xhttp.responseText;
-                document.getElementById("messageButtonPanel").style.display = "block";
-                document.getElementById("messagePanel").style.display = "block";
-                document.getElementById("floatingPanel").style.display = 'inline-block';
+                document.getElementById('message').innerHTML = 'Logbook of the World login failed.'; // xhttp.responseText;
+                document.getElementById('messageButtonPanel').style.display = 'block';
+                document.getElementById('messagePanel').style.display = 'block';
+                document.getElementById('floatingPanel').style.display = 'inline-block';
             }
         }
+    }
+
+    function getGridsFromQso(qso) {
+        let grids = new Set();
+        if (qso['gridsquare'] !== undefined) {
+            let gridsquare = qso['gridsquare'].toUpperCase();
+            gridsquare = gridsquare.substr(0, 4);
+            grids.add(gridsquare);
+        }
+        if (qso['vucc_grids'] !== undefined) {
+            let gridsquares = qso['vucc_grids'].toUpperCase().split(',');
+            for (let gridsquare of gridsquares) {
+                gridsquare = gridsquare.substr(0, 4);
+                grids.add(gridsquare);
+            }
+        }
+        return grids;
     }
 
     function getGridsFromQsos(qsos) {
         let grids = new Set();
         for (let i=0; i < qsos.length; i++) {
             let qso = qsos[i];
-            if (qso['gridsquare'] !== undefined) {
-                let gridsquare = qso['gridsquare'].toUpperCase();
-                gridsquare = gridsquare.substr(0, 4);
-                if (!grids.has(gridsquare)) {
-                    grids.add(gridsquare);
-                }
-            }
-            if (qso['vucc_grids'] !== undefined) {
-                let gridsquares = qso['vucc_grids'].toUpperCase().split(',');
-                for (let gridsquare of gridsquares) {
-                    gridsquare = gridsquare.substr(0, 4);
-                    if (!grids.has(gridsquare)) {
-                        grids.add(gridsquare);
-                    }
+            let qso_grids = getGridsFromQso(qso);
+            for (let grid of qso_grids) {
+                if (!grids.has(grid)) {
+                    grids.add(grid);
                 }
             }
         }
         return grids;
+    }
+
+    function calculateDetails(qsos) {
+        let stuff = {};
+        for (let qso of qsos) {
+            let qso_grids = getGridsFromQso(qso);
+            // band-mode
+            let bmKey = qso['band'] + '-' + qso['app_lotw_modegroup'];
+            if (!stuff[bmKey]) {
+                stuff[bmKey] = new Set();
+            }
+            for (let grid of qso_grids) {
+                if (!stuff[bmKey].has(grid)) {
+                    stuff[bmKey].add(grid);
+                }
+            }
+            // band-total
+            bmKey = qso['band']
+            if (!stuff[bmKey]) {
+                stuff[bmKey] = new Set();
+            }
+            for (let grid of qso_grids) {
+                if (!stuff[bmKey].has(grid)) {
+                    stuff[bmKey].add(grid);
+                }
+            }
+            // mode-total
+            bmKey = qso['app_lotw_modegroup']
+            if (!stuff[bmKey]) {
+                stuff[bmKey] = new Set();
+            }
+            for (let grid of qso_grids) {
+                if (!stuff[bmKey].has(grid)) {
+                    stuff[bmKey].add(grid);
+                }
+            }
+            // all
+            bmKey = '-';
+            if (!stuff[bmKey]) {
+                stuff[bmKey] = new Set();
+            }
+            for (let grid of qso_grids) {
+                if (!stuff[bmKey].has(grid)) {
+                    stuff[bmKey].add(grid);
+                }
+            }
+        }
+
+        let t = '<div class=\'detailsHeading\'>Unique Grids per Band/Mode</div>\n';
+
+        // narrow the bands shown in the table to only the bands that have QSLs
+        let usedBands = [];
+        for (let band of BANDS) {
+            bmKey = band;
+            let val = stuff[bmKey];
+            let count = 0;
+            if (val) {
+                count = val.size;
+            }
+            if (count > 0) {
+                usedBands.push(band);
+            }
+        }
+
+        t += '<table class=\'detailsTable\'><tr>';
+        t += '<th style=\'border:0;\'></th>';
+
+        for (let band of usedBands) {
+            t += '<th>' + band + '</th>';
+        }
+        t += '<th>All</th>';
+        t += '</tr>';
+
+        for (let mode of MODES) {
+            t += '<tr>';
+            t += '<th>' + mode + '</th>';
+            for (let band of usedBands) {
+                let bmKey = band + '-' + mode;
+                let val = stuff[bmKey];
+                let count = 0;
+                if (val) {
+                    count = val.size;
+                }
+                t += '<td>' + count + '</td>'
+            }
+            // mode total
+            bmKey = mode;
+            let val = stuff[bmKey];
+            let count = 0;
+            if (val) {
+                count = val.size;
+            }
+            t += '<td>' + count + '</td>'
+            t += '</tr>\n';
+        }
+        t += '<tr>';
+        t += '<th>All</th>';
+        for (let band of usedBands) {
+            bmKey = band;
+            let val = stuff[bmKey];
+            let count = 0;
+            if (val) {
+                count = val.size;
+            }
+            t += '<td>' + count + '</td>'
+        }
+        let val = stuff['-'];
+        let count = 0;
+        if (val) {
+            count = val.size;
+        }
+        t += '<td>' + count + '</td>'
+        t += '</tr>\n';
+
+        t += '</table>';
+        document.getElementById('detailsPanel').innerHTML = t;
     }
 
     function draw_grids(map, grids) {
@@ -494,36 +688,41 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 callback(this);
             }
         };
-        xhr.open("GET", url, true);
+        xhr.open('GET', url, true);
         xhr.send();
     }
 
     function callLotw() {
-        document.getElementById("loginFormDiv").style.display = 'none';
-        document.getElementById("message").innerHTML = "<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>";
-        document.getElementById("footerLeft").innerHTML = "";
-        document.getElementById("messageButtonPanel").style.display = "hide";
-        document.getElementById("messagePanel").style.display = "block";
-        let username = document.getElementById("loginName").value;
-        let password = document.getElementById("password").value;
+        document.getElementById('loginFormDiv').style.display = 'none';
+        document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>';
+        //document.getElementById('footerLeft').style.display = 'none';
+        document.getElementById('messageButtonPanel').style.display = 'none';
+        document.getElementById('messagePanel').style.display = 'block';
+        let username = document.getElementById('loginName').value;
+        let password = document.getElementById('password').value;
         let band = document.querySelector('input[name="band"]:checked').value;
-        let url = "lotwreport.php" + "?login=" + username + "&password=" + password + "&qso_query=1&qso_qsl=yes&qso_qsldetail=yes";
-        if (band != "all") {
-            url = url + "&qso_band=" + band;
+        let url = 'lotwreport.php' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
+        if (band != 'all') {
+            url = url + '&qso_band=' + band;
         }
-        let startDate = document.getElementById("startDate").value;
-        let endDate = document.getElementById("endDate").value;
-        url = url + "&qso_startdate=" + startDate + "&qso_enddate=" + endDate;
+        let startDate = document.getElementById('startDate').value;
+        let endDate = document.getElementById('endDate').value;
+        url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
         asyncLoad(url, processReceivedData);
     }
 
     function resetLogin() {
-        document.getElementById("messageButtonPanel").style.display = 'none';
-        document.getElementById("messagePanel").style.display = 'none';
-        document.getElementById("floatingPanel").style.display = 'inline-block';
-        document.getElementById("loginFormDiv").style.display = 'block';
-        document.getElementById("message").innerHTML = "";
-        document.getElementById("footerLeft").innerHTML = "";
+        document.getElementById('messageButtonPanel').style.display = 'none';
+        document.getElementById('messagePanel').style.display = 'none';
+        document.getElementById('floatingPanel').style.display = 'inline-block';
+        document.getElementById('loginFormDiv').style.display = 'block';
+        document.getElementById('footerLeft').style.display = 'none';
+        document.getElementById('message').innerHTML = '';
+    }
+
+    function toggleDetails() {
+        let checked = document.getElementById('detailsButton').checked;
+        document.getElementById('detailsPanel').style.display = checked ? 'inline-block' : 'none';
     }
 </script>
 </body>
