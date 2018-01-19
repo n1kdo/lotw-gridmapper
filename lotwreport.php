@@ -54,7 +54,7 @@ if ($login === 'n1kdo' && $password === '') {
     );
     error_log('debug local file mode');
 } else {
-    $response = file_get_contents($url);
+    $response = @file_get_contents($url) or "";
     if ($login === 'n1kdo') {
         $fp = fopen('lotwreport.adi', 'w');
         if ($fp) {
