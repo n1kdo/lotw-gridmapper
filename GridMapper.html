@@ -39,43 +39,43 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             border: 0;
             font-family: sans-serif;
         }
-
         FORM {
             text-align: center;
             display: inline-block;
         }
-
-        .header {
-            height: 8vh;
-            font-size: 7vh;
-            text-align: center;
-        }
-
-        .formField {
-            width: 10em;
-            font-size: 2vh;
-            height: 2vh;
-            text-align: left;
-        }
-
-        .map {
+        .adifPanel {
             display: none;
-            width: 100%;
-            height: 90vh;
-            margin: auto;
-        }
-
-        .floatingPanel {
-            display: inline-block;
-            width: 60vw;
             left: 20vw;
-            top: 25vh;
+            top: 10vh;
             position: fixed;
             border: 5px ridge #ccc;
             z-index: 100;
             background-color: aliceblue;
         }
-
+        .adifText {
+            font-family: monospace;
+            width: 50vw;
+            height: 80vh;
+        }
+        .adifUrlText {
+            font-family: monospace;
+            font-size: 0.8em;
+            background-color: white;
+            border: 1px solid black;
+            word-wrap: break-word;
+        }
+        .bandLabel {
+            margin-right: 0.5em;
+            white-space: nowrap;
+        }
+        .bandRadio {
+            margin-right: 0px;
+        }
+        .detailsHeading {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
         .detailsPanel {
             display: none;
             position: absolute;
@@ -86,12 +86,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             padding: 0.25em;
             z-index: 1;
         }
-
-        .loginFormDiv {
-            text-align: center;
-            margin: 1em;
+        .detailsTable {
+            border: 0;
+            border-collapse: collapse;
+            margin: 0 auto;
         }
-
+        .detailsTable TH {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        .detailsTable TD {
+            border: 1px solid black;
+            border-collapse: collapse;
+            text-align: right;
+            width: 3em;
+        }
+        .floatingPanel {
+            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            position: fixed;
+            border: 5px ridge #ccc;
+            z-index: 1;
+            background-color: aliceblue;
+        }
         .footer {
             position: absolute;
             bottom: 0;
@@ -100,69 +119,54 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             vertical-align: bottom;
             height: 2vh;
             font-size: 2vh;
-
         }
         .footerLeft {
             position: absolute;
             bottom: 0;
             left: 0;
         }
-
         .footerMid {
             position: absolute;
             bottom: 0;
             left: 0;
-            right : 0;
+            right: 0;
             text-align: center;
             margin: 0 auto;
             width: 10vh;
         }
-
         .footerRight {
             position: absolute;
             right: 0;
             bottom: 0;
         }
-
-        .bandLabel {
-            margin-right: 0.5em;
-            white-space: nowrap;
+        .formField {
+            width: 10em;
+            font-size: 2vh;
+            height: 2vh;
+            text-align: left;
         }
-
-        .bandRadio {
-            margin-right: 0px;
-        }
-
-        .detailsButton {
-            margin: 1px;
-            position: relative;
-            top: 2px;
-        }
-
-        .detailsHeading {
+        .header {
+            height: 8vh;
+            font-size: 7vh;
             text-align: center;
+        }
+        .map {
+            display: none;
+            width: 100%;
+            height: 90vh;
+            margin: auto;
+        }
+        .paranoids {
+            font-size: 0.666em;
+        }
+        .statusLineButton {
+            font-size: 0.6em;
             font-weight: bold;
-            font-size: 1.2em;
         }
-
-        .detailsTable {
-            border: 0;
-            border-collapse: collapse;
-            margin: 0 auto;
+        .loginFormDiv {
+            text-align: center;
+            margin: 1em;
         }
-
-        .detailsTable TH {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-
-        .detailsTable TD {
-            border: 1px solid black;
-            border-collapse: collapse;
-            text-align: right;
-            width: 3em;
-        }
-
     </style>
     <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyD19s_wRG_27R9nDQ3jLoriOLaHThReZv0' defer></script>
     <script src='https://rawgit.com/googlemaps/js-map-label/gh-pages/src/maplabel-compiled.js' defer></script>
@@ -171,166 +175,189 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div id='header' class='header'>
     Map Grids Confirmed on LoTW
 </div>
-<div id='floatingPanel' class='floatingPanel'>
-    <div id='loginFormDiv' class='loginFormDiv'>
-        <form id='loginForm'>
-            <table style='border-spacing: 0.75em;'>
-                <tbody>
-                <tr>
-                    <td colspan='2' align='center'>
-                        Enter your <b>LoTW</b> credentials.
-                    </td>
-                </tr>
-                <tr>
-                    <td style='text-align: right;'><label for='loginName'>Username:</label></td>
-                    <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField'></td>
-                </tr>
-                <tr>
-                    <td style='text-align: right;'><label for='password'>Password:</label></td>
-                    <td style='text-align: left;'><input type='password' maxlength='16' name='password' id='password' class='formField'></td>
-                </tr>
-               <tr>
-                    <td colspan='2'>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='all' class='bandRadio' checked>
-                            All Bands
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='160m' class='bandRadio'>
-                            160M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='80m' class='bandRadio'>
-                            80M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='60m' class='bandRadio'>
-                            60M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='40m' class='bandRadio'>
-                            40M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='30m' class='bandRadio'>
-                            30M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='20m' class='bandRadio'>
-                            20M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='17m' class='bandRadio'>
-                            17M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='15m' class='bandRadio'>
-                            15M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='12m' class='bandRadio'>
-                            12M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='10m' class='bandRadio'>
-                            10M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='6m' class='bandRadio'>
-                            6M
-                        </label>
-                        <label class='bandLabel'>
-                            <input type='radio' name='band' value='2m' class='bandRadio'>
-                            2M
-                        </label>
-                    </td>
-                </tr>
-                <tr>
-                    <td style='text-align: right;'><label for='startDate'>Start Date:</label></td>
-                    <td style='text-align: left;'><input type='date' id='startDate' value='2018-01-01' class='formField'></td>
-                </tr>
-                <tr>
-                    <td style='text-align: right;'><label for='endDate'>End Date:</label></td>
-                    <td style='text-align: left;'><input type='date' id='endDate' class='formField'></td>
-                </tr>
-                <tr>
-                    <td style='text-align: right;'><label for='ffmaButton'>Show Unworked FFMA:</label></td>
-                    <td style='text-align: left;'><input type='checkbox' id='ffmaButton'></td>
-                </tr>
-                <tr>
-                    <td colspan='2' align='center'>
-                        <button type='button' onclick='callLotw()'>Click Me!</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </form>
+<div id='loginPanel' class='floatingPanel'>
+    <form id='loginForm'>
+        <table style='border-spacing: 0.75em;'>
+            <tbody>
+            <tr>
+                <td colspan='2' align='center'>
+                    Enter your <b>LoTW</b> credentials.
+                </td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='loginName'>Username:</label></td>
+                <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField'
+                                                     onchange="updateAdifUrl()"></td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='password'>Password:</label></td>
+                <td style='text-align: left;'><input type='password' maxlength='16' name='password' id='password'
+                                                     class='formField'></td>
+            </tr>
+            <tr>
+                <td colspan='2'>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='all' class='bandRadio' checked
+                               onchange="updateAdifUrl()">
+                        All Bands
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='160m' class='bandRadio' onchange="updateAdifUrl()">
+                        160M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='80m' class='bandRadio' onchange="updateAdifUrl()">
+                        80M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='60m' class='bandRadio' onchange="updateAdifUrl()">
+                        60M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='40m' class='bandRadio' onchange="updateAdifUrl()">
+                        40M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='30m' class='bandRadio' onchange="updateAdifUrl()">
+                        30M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='20m' class='bandRadio' onchange="updateAdifUrl()">
+                        20M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='17m' class='bandRadio' onchange="updateAdifUrl()">
+                        17M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='15m' class='bandRadio' onchange="updateAdifUrl()">
+                        15M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='12m' class='bandRadio' onchange="updateAdifUrl()">
+                        12M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='10m' class='bandRadio' onchange="updateAdifUrl()">
+                        10M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='6m' class='bandRadio' onchange="updateAdifUrl()">
+                        6M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='2m' class='bandRadio' onchange="updateAdifUrl()">
+                        2M
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='startDate'>Start Date:</label></td>
+                <td style='text-align: left;'><input type='date' id='startDate' value='2018-01-01' class='formField'
+                                                     onchange="updateAdifUrl()"></td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='endDate'>End Date:</label></td>
+                <td style='text-align: left;'><input type='date' id='endDate' class='formField'
+                                                     onchange="updateAdifUrl()"></td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='ffmaButton'>Show Unworked FFMA:</label></td>
+                <td style='text-align: left;'><input type='checkbox' id='ffmaButton'></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center">
+                    <button type='button' onclick='callLotw()'>Get ADIF and Plot</button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan='2'>
+                    <div class="paranoids">
+                        You may wish to bring their own ADIF, rather than fetch it through my server.<br>
+                        Use the URL below to fetch your ADIF, then use the button below to load and map it.
+                    </div>
+                    <div id="adifUrlText" class="adifUrlText"></div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan='2' align='center'>
+                    <button type='button' onclick='bringMyOwnADIF()'>Bring my own ADIF</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div id="messagePanel" class="floatingPanel">
+    <div id='message' class='loginFormDiv'>Please Wait.</div>
+    <div id='messageButtonPanel' class='loginFormDiv' style='display:none;'>
+        <button type='button' onclick='resetLogin()'>Try Again</button>
     </div>
-    <div id='messagePanel' class='loginFormDiv' style='display:none;'>
-        <div id='message' class='loginFormDiv'>Please Wait.</div>
-        <div id='messageButtonPanel' class='loginFormDiv' style='display:none;'>
-            <button type='button' onclick='resetLogin()'>Try Again</button>
-        </div>
+</div>
+<div id='adifPanel' class='adifPanel'>
+    <div>
+        <textarea id='adifText' class='adifText'></textarea>
+    </div>
+    <div>
+        <input type='button' id='testButton2' value='plot to map' class='testButton' onclick='gridMapAdif()'>
+        <input type='button' id='testButton4' value='start again' class='testButton' onclick='resetLogin()'>
     </div>
 </div>
 <div id='detailsPanel' class='detailsPanel'>
-stff
 </div>
 <div id='map' class='map'></div>
 <div class='footer'>
-<div id='footerLeft' class='footerLeft' style='display:none'>
-    <label>
-        <input type='checkbox' id='detailsButton' class='detailsButton' onClick='toggleDetails()'>
-        show details
-    </label>
-</div>
-<div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-<div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180113</div>
+    <div id='footerLeft' class='footerLeft' style='display:none'>
+        <input type='button' id='detailsButton' class='statusLineButton' value="Details" onClick='toggleDetails()'>
+        <input type='button' id='adifButton' class='statusLineButton' value='ADIF' onClick='showAdifPanel(true)'>
+        <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
+    </div>
+    <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180127</div>
 </div>
 <script>
     const ffma_grids = [
-        'CM79','CM86','CM87','CM88','CM89','CM93','CM94','CM95','CM96','CM97','CM98','CM99',
-        'CN70','CN71','CN72','CN73','CN74','CN75','CN76','CN77','CN78','CN80','CN81','CN82',
-        'CN83','CN84','CN85','CN86','CN87','CN88','CN90','CN91','CN92','CN93','CN94','CN95',
-        'CN96','CN97','CN98','DL79','DL88','DL89','DL98','DL99','DM02','DM03','DM04','DM05',
-        'DM06','DM07','DM08','DM09','DM12','DM13','DM14','DM15','DM16','DM17','DM18','DM19',
-        'DM22','DM23','DM24','DM25','DM26','DM27','DM28','DM29','DM31','DM32','DM33','DM34',
-        'DM35','DM36','DM37','DM38','DM39','DM41','DM42','DM43','DM44','DM45','DM46','DM47',
-        'DM48','DM49','DM51','DM52','DM53','DM54','DM55','DM56','DM57','DM58','DM59','DM61',
-        'DM62','DM63','DM64','DM65','DM66','DM67','DM68','DM69','DM70','DM71','DM72','DM73',
-        'DM74','DM75','DM76','DM77','DM78','DM79','DM80','DM81','DM82','DM83','DM84','DM85',
-        'DM86','DM87','DM88','DM89','DM90','DM91','DM92','DM93','DM94','DM95','DM96','DM97',
-        'DM98','DM99','DN00','DN01','DN02','DN03','DN04','DN05','DN06','DN07','DN08','DN10',
-        'DN11','DN12','DN13','DN14','DN15','DN16','DN17','DN18','DN20','DN21','DN22','DN23',
-        'DN24','DN25','DN26','DN27','DN28','DN30','DN31','DN32','DN33','DN34','DN35','DN36',
-        'DN37','DN38','DN40','DN41','DN42','DN43','DN44','DN45','DN46','DN47','DN48','DN50',
-        'DN51','DN52','DN53','DN54','DN55','DN56','DN57','DN58','DN60','DN61','DN62','DN63',
-        'DN64','DN65','DN66','DN67','DN68','DN70','DN71','DN72','DN73','DN74','DN75','DN76',
-        'DN77','DN78','DN80','DN81','DN82','DN83','DN84','DN85','DN86','DN87','DN88','DN90',
-        'DN91','DN92','DN93','DN94','DN95','DN96','DN97','DN98','EL06','EL07','EL08','EL09',
-        'EL15','EL16','EL17','EL18','EL19','EL28','EL29','EL39','EL49','EL58','EL59','EL79',
-        'EL84','EL86','EL87','EL88','EL89','EL94','EL95','EL96','EL97','EL98','EL99','EM00',
-        'EM01','EM02','EM03','EM04','EM05','EM06','EM07','EM08','EM09','EM10','EM11','EM12',
-        'EM13','EM14','EM15','EM16','EM17','EM18','EM19','EM20','EM21','EM22','EM23','EM24',
-        'EM25','EM26','EM27','EM28','EM29','EM30','EM31','EM32','EM33','EM34','EM35','EM36',
-        'EM37','EM38','EM39','EM40','EM41','EM42','EM43','EM44','EM45','EM46','EM47','EM48',
-        'EM49','EM50','EM51','EM52','EM53','EM54','EM55','EM56','EM57','EM58','EM59','EM60',
-        'EM61','EM62','EM63','EM64','EM65','EM66','EM67','EM68','EM69','EM70','EM71','EM72',
-        'EM73','EM74','EM75','EM76','EM77','EM78','EM79','EM80','EM81','EM82','EM83','EM84',
-        'EM85','EM86','EM87','EM88','EM89','EM90','EM91','EM92','EM93','EM94','EM95','EM96',
-        'EM97','EM98','EM99','EN00','EN01','EN02','EN03','EN04','EN05','EN06','EN07','EN08',
-        'EN10','EN11','EN12','EN13','EN14','EN15','EN16','EN17','EN18','EN20','EN21','EN22',
-        'EN23','EN24','EN25','EN26','EN27','EN28','EN29','EN30','EN31','EN32','EN33','EN34',
-        'EN35','EN36','EN37','EN38','EN40','EN41','EN42','EN43','EN44','EN45','EN46','EN47',
-        'EN48','EN50','EN51','EN52','EN53','EN54','EN55','EN56','EN57','EN58','EN60','EN61',
-        'EN62','EN63','EN64','EN65','EN66','EN67','EN70','EN71','EN72','EN73','EN74','EN75',
-        'EN76','EN80','EN81','EN82','EN83','EN84','EN85','EN86','EN90','EN91','EN92','FM02',
-        'FM03','FM04','FM05','FM06','FM07','FM08','FM09','FM13','FM14','FM15','FM16','FM17',
-        'FM18','FM19','FM25','FM26','FM27','FM28','FM29','FN00','FN01','FN02','FN03','FN10',
-        'FN11','FN12','FN13','FN14','FN20','FN21','FN22','FN23','FN24','FN25','FN30','FN31',
-        'FN32','FN33','FN34','FN35','FN41','FN42','FN43','FN44','FN45','FN46','FN51','FN53',
-        'FN54','FN55','FN56','FN57','FN64','FN65','FN66','FN67'];
-
+        'CM79', 'CM86', 'CM87', 'CM88', 'CM89', 'CM93', 'CM94', 'CM95', 'CM96', 'CM97', 'CM98', 'CM99',
+        'CN70', 'CN71', 'CN72', 'CN73', 'CN74', 'CN75', 'CN76', 'CN77', 'CN78', 'CN80', 'CN81', 'CN82',
+        'CN83', 'CN84', 'CN85', 'CN86', 'CN87', 'CN88', 'CN90', 'CN91', 'CN92', 'CN93', 'CN94', 'CN95',
+        'CN96', 'CN97', 'CN98', 'DL79', 'DL88', 'DL89', 'DL98', 'DL99', 'DM02', 'DM03', 'DM04', 'DM05',
+        'DM06', 'DM07', 'DM08', 'DM09', 'DM12', 'DM13', 'DM14', 'DM15', 'DM16', 'DM17', 'DM18', 'DM19',
+        'DM22', 'DM23', 'DM24', 'DM25', 'DM26', 'DM27', 'DM28', 'DM29', 'DM31', 'DM32', 'DM33', 'DM34',
+        'DM35', 'DM36', 'DM37', 'DM38', 'DM39', 'DM41', 'DM42', 'DM43', 'DM44', 'DM45', 'DM46', 'DM47',
+        'DM48', 'DM49', 'DM51', 'DM52', 'DM53', 'DM54', 'DM55', 'DM56', 'DM57', 'DM58', 'DM59', 'DM61',
+        'DM62', 'DM63', 'DM64', 'DM65', 'DM66', 'DM67', 'DM68', 'DM69', 'DM70', 'DM71', 'DM72', 'DM73',
+        'DM74', 'DM75', 'DM76', 'DM77', 'DM78', 'DM79', 'DM80', 'DM81', 'DM82', 'DM83', 'DM84', 'DM85',
+        'DM86', 'DM87', 'DM88', 'DM89', 'DM90', 'DM91', 'DM92', 'DM93', 'DM94', 'DM95', 'DM96', 'DM97',
+        'DM98', 'DM99', 'DN00', 'DN01', 'DN02', 'DN03', 'DN04', 'DN05', 'DN06', 'DN07', 'DN08', 'DN10',
+        'DN11', 'DN12', 'DN13', 'DN14', 'DN15', 'DN16', 'DN17', 'DN18', 'DN20', 'DN21', 'DN22', 'DN23',
+        'DN24', 'DN25', 'DN26', 'DN27', 'DN28', 'DN30', 'DN31', 'DN32', 'DN33', 'DN34', 'DN35', 'DN36',
+        'DN37', 'DN38', 'DN40', 'DN41', 'DN42', 'DN43', 'DN44', 'DN45', 'DN46', 'DN47', 'DN48', 'DN50',
+        'DN51', 'DN52', 'DN53', 'DN54', 'DN55', 'DN56', 'DN57', 'DN58', 'DN60', 'DN61', 'DN62', 'DN63',
+        'DN64', 'DN65', 'DN66', 'DN67', 'DN68', 'DN70', 'DN71', 'DN72', 'DN73', 'DN74', 'DN75', 'DN76',
+        'DN77', 'DN78', 'DN80', 'DN81', 'DN82', 'DN83', 'DN84', 'DN85', 'DN86', 'DN87', 'DN88', 'DN90',
+        'DN91', 'DN92', 'DN93', 'DN94', 'DN95', 'DN96', 'DN97', 'DN98', 'EL06', 'EL07', 'EL08', 'EL09',
+        'EL15', 'EL16', 'EL17', 'EL18', 'EL19', 'EL28', 'EL29', 'EL39', 'EL49', 'EL58', 'EL59', 'EL79',
+        'EL84', 'EL86', 'EL87', 'EL88', 'EL89', 'EL94', 'EL95', 'EL96', 'EL97', 'EL98', 'EL99', 'EM00',
+        'EM01', 'EM02', 'EM03', 'EM04', 'EM05', 'EM06', 'EM07', 'EM08', 'EM09', 'EM10', 'EM11', 'EM12',
+        'EM13', 'EM14', 'EM15', 'EM16', 'EM17', 'EM18', 'EM19', 'EM20', 'EM21', 'EM22', 'EM23', 'EM24',
+        'EM25', 'EM26', 'EM27', 'EM28', 'EM29', 'EM30', 'EM31', 'EM32', 'EM33', 'EM34', 'EM35', 'EM36',
+        'EM37', 'EM38', 'EM39', 'EM40', 'EM41', 'EM42', 'EM43', 'EM44', 'EM45', 'EM46', 'EM47', 'EM48',
+        'EM49', 'EM50', 'EM51', 'EM52', 'EM53', 'EM54', 'EM55', 'EM56', 'EM57', 'EM58', 'EM59', 'EM60',
+        'EM61', 'EM62', 'EM63', 'EM64', 'EM65', 'EM66', 'EM67', 'EM68', 'EM69', 'EM70', 'EM71', 'EM72',
+        'EM73', 'EM74', 'EM75', 'EM76', 'EM77', 'EM78', 'EM79', 'EM80', 'EM81', 'EM82', 'EM83', 'EM84',
+        'EM85', 'EM86', 'EM87', 'EM88', 'EM89', 'EM90', 'EM91', 'EM92', 'EM93', 'EM94', 'EM95', 'EM96',
+        'EM97', 'EM98', 'EM99', 'EN00', 'EN01', 'EN02', 'EN03', 'EN04', 'EN05', 'EN06', 'EN07', 'EN08',
+        'EN10', 'EN11', 'EN12', 'EN13', 'EN14', 'EN15', 'EN16', 'EN17', 'EN18', 'EN20', 'EN21', 'EN22',
+        'EN23', 'EN24', 'EN25', 'EN26', 'EN27', 'EN28', 'EN29', 'EN30', 'EN31', 'EN32', 'EN33', 'EN34',
+        'EN35', 'EN36', 'EN37', 'EN38', 'EN40', 'EN41', 'EN42', 'EN43', 'EN44', 'EN45', 'EN46', 'EN47',
+        'EN48', 'EN50', 'EN51', 'EN52', 'EN53', 'EN54', 'EN55', 'EN56', 'EN57', 'EN58', 'EN60', 'EN61',
+        'EN62', 'EN63', 'EN64', 'EN65', 'EN66', 'EN67', 'EN70', 'EN71', 'EN72', 'EN73', 'EN74', 'EN75',
+        'EN76', 'EN80', 'EN81', 'EN82', 'EN83', 'EN84', 'EN85', 'EN86', 'EN90', 'EN91', 'EN92', 'FM02',
+        'FM03', 'FM04', 'FM05', 'FM06', 'FM07', 'FM08', 'FM09', 'FM13', 'FM14', 'FM15', 'FM16', 'FM17',
+        'FM18', 'FM19', 'FM25', 'FM26', 'FM27', 'FM28', 'FM29', 'FN00', 'FN01', 'FN02', 'FN03', 'FN10',
+        'FN11', 'FN12', 'FN13', 'FN14', 'FN20', 'FN21', 'FN22', 'FN23', 'FN24', 'FN25', 'FN30', 'FN31',
+        'FN32', 'FN33', 'FN34', 'FN35', 'FN41', 'FN42', 'FN43', 'FN44', 'FN45', 'FN46', 'FN51', 'FN53',
+        'FN54', 'FN55', 'FN56', 'FN57', 'FN64', 'FN65', 'FN66', 'FN67'];
     const BANDS = ['160M', '80M', '40M', '30M', '20M', '17M', '15M', '12M', '10M', '6M', '2M', '70CM'];
     const MODES = ['CW', 'DATA', 'PHONE'];
 
@@ -339,6 +366,8 @@ stff
         var endDateInput = document.getElementById('endDate');
         endDateInput.setAttribute('min', today);
         endDate.value = today;
+        updateAdifUrl()
+        document.getElementById('loginPanel').style.display = 'inline-block';
     }
 
     function gridToCoordinates(gridSquare) {
@@ -446,84 +475,94 @@ stff
         return result;
     }
 
+    function parse_adif(text) {
+        let qsos = [];
+        let qso = {};
+        let looks_like_adif = false;
+        let lines = text.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (i === 0) {
+                if (line.includes('ARRL Logbook of the World Status Report')) {
+                    looks_like_adif = true;
+                }
+            }
+            let pieces = parse_adif_line(line);
+            switch (pieces.length) {
+                case 1:
+                    if (pieces[0] === 'eoh') {
+                        looks_like_adif = true;
+                        qsos = [];
+                        qso = {};
+                    }
+                    if (pieces[0] === 'eor') {
+                        qsos.push(qso);
+                        qso = {};
+                    }
+                    break;
+                case 2:
+                    if (pieces[0] === 'app_lotw_numrec') {
+                        numrec = parseInt(pieces[1], 0);
+                    } else {
+                        qso[pieces[0]] = pieces[1];
+                    }
+                    break;
+            }
+            if (i > 20 && !looks_like_adif) {
+                i = lines.length;
+                break;
+            }
+        }
+        if (!looks_like_adif) {
+            qsos = null;
+        }
+        return qsos;
+    }
+
+    function mapQsos(qsos) {
+        document.getElementById('messagePanel').style.display = 'none';
+        document.getElementById("adifPanel").style.display = 'none';
+        document.getElementById('map').style.display = 'block';
+        let ffmaMode = document.getElementById('ffmaButton').checked;
+        let map = drawMap();
+        let grids = getGridsFromQsos(qsos);
+        let username = document.getElementById('loginName').value;
+        let band = document.querySelector('input[name="band"]:checked').value;
+        calculateDetails(qsos);
+        if (ffmaMode) {
+            let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
+            draw_grids(map, missingGrids);
+            document.getElementById('header').innerHTML = username.toUpperCase() + ' Unconfirmed FFMA Grids';
+            document.getElementById('detailsPanel').innerHTML = '' + missingGrids.size + ' Unconfirmed FFMA Grid Squares';
+            document.getElementById('footerLeft').style.display = 'block';
+        } else {
+            draw_grids(map, grids);
+            let title = username.toUpperCase() + ' grids confirmed'
+            if (band != 'all') {
+                title = title + ' on ' + band;
+            }
+            document.getElementById('header').innerHTML = title;
+            document.getElementById('footerLeft').style.display = 'block';
+        }
+    }
+
     function processReceivedData(xhr) {
         if (xhr.status === 200) {
             let text = xhr.responseText;
-            let lines = text.split('\n');
-            let looks_like_adif = false;
-            let qsos = [];
-            let qso = {};
-            let numrec = 0;
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i].trim();
-                if (i === 0) {
-                    if (line.includes('ARRL Logbook of the World Status Report')) {
-                        looks_like_adif = true;
-                    } else {
-                        // most likely not the data we were expecting.
-                        i = lines.length;
-                    }
-                }
-                if (looks_like_adif) {
-                    let pieces = parse_adif_line(line);
-                    switch (pieces.length) {
-                        case 1:
-                            if (pieces[0] === 'eoh') {
-                                qsos = [];
-                                qso = {};
-                            }
-                            if (pieces[0] === 'eor') {
-                                qsos.push(qso);
-                                qso = {};
-                            }
-                            break;
-                        case 2:
-                            if (pieces[0] === 'app_lotw_numrec') {
-                                numrec = parseInt(pieces[1], 0);
-                            } else {
-                                qso[pieces[0]] = pieces[1];
-                            }
-                            break;
-                    }
-                }
-            }
-            if (looks_like_adif) {
+            document.getElementById('adifText').value = text;
+            let qsos = parse_adif(text);
+            if (qsos != null) {
                 if (qsos.length > 0) { // data is good
-                    document.getElementById('floatingPanel').style.display = 'none';
-                    document.getElementById('map').style.display = 'block';
-                    let ffmaMode = document.getElementById('ffmaButton').checked;
-                    let map = drawMap();
-                    let grids = getGridsFromQsos(qsos);
-                    let username = document.getElementById('loginName').value;
-                    let band = document.querySelector('input[name="band"]:checked').value;
-                    calculateDetails(qsos);
-                    if (ffmaMode) {
-                        let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
-                        draw_grids(map, missingGrids);
-                        document.getElementById('header').innerHTML = username.toUpperCase() + ' Unconfirmed FFMA Grids';
-                        document.getElementById('detailsPanel').innerHTML = '' + missingGrids.size + ' Unconfirmed FFMA Grid Squares';
-                        document.getElementById('footerLeft').style.display = 'block';
-                    } else {
-                        draw_grids(map, grids);
-                        let title = username.toUpperCase() + ' grids confirmed'
-                        if (band != 'all') {
-                            title = title + ' on ' + band;
-                        }
-                        document.getElementById('header').innerHTML = title;
-                        // document.getElementById('detailsPanel').innerHTML = '' + grids.size + ' Confirmed Grid Squares';
-                        document.getElementById('footerLeft').style.display = 'block';
-                    }
+                    mapQsos(qsos);
                 } else {
-                    document.getElementById('message').innerHTML = '' + numrec + ' QSLs were selected.';
+                    document.getElementById('message').innerHTML = 'No QSLS found.';
                     document.getElementById('messageButtonPanel').style.display = 'block';
-                    document.getElementById('messagePanel').style.display = 'block';
-                    document.getElementById('floatingPanel').style.display = 'inline-block';
+                    document.getElementById('messagePanel').style.display = 'inline-block';
                 }
             } else {
-                document.getElementById('message').innerHTML = 'Logbook of the World login failed.'; // xhttp.responseText;
+                document.getElementById('message').innerHTML = 'Logbook of the World login failed.';
                 document.getElementById('messageButtonPanel').style.display = 'block';
-                document.getElementById('messagePanel').style.display = 'block';
-                document.getElementById('floatingPanel').style.display = 'inline-block';
+                document.getElementById('messagePanel').style.display = 'inline-block';
             }
         }
     }
@@ -547,7 +586,7 @@ stff
 
     function getGridsFromQsos(qsos) {
         let grids = new Set();
-        for (let i=0; i < qsos.length; i++) {
+        for (let i = 0; i < qsos.length; i++) {
             let qso = qsos[i];
             let qso_grids = getGridsFromQso(qso);
             for (let grid of qso_grids) {
@@ -692,8 +731,41 @@ stff
         xhr.send();
     }
 
+    function updateAdifUrl() {
+        let username = document.getElementById('loginName').value;
+        let password = '*******';
+        let band = document.querySelector('input[name="band"]:checked').value;
+        let url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
+        if (band != 'all') {
+            url = url + '&qso_band=' + band;
+        }
+        let startDate = document.getElementById('startDate').value;
+        let endDate = document.getElementById('endDate').value;
+        url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
+        document.getElementById('adifUrlText').innerHTML = url;
+    }
+
+    function bringMyOwnADIF() {
+        document.getElementById('loginPanel').style.display = 'none';
+        document.getElementById('adifPanel').style.display = 'inline-block';
+    }
+
+    function gridMapAdif() {
+        let text = document.getElementById('adifText').value;
+        let qsos = parse_adif(text);
+        if (qsos != null) {
+            if (qsos.length > 0) { // data is good
+                mapQsos(qsos);
+            } else {
+                alert("no QSOs found");
+            }
+        } else {
+            alert("could not parse that adif");
+        }
+    }
+
     function callLotw() {
-        document.getElementById('loginFormDiv').style.display = 'none';
+        document.getElementById('loginPanel').style.display = 'none';
         document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>';
         //document.getElementById('footerLeft').style.display = 'none';
         document.getElementById('messageButtonPanel').style.display = 'none';
@@ -712,17 +784,22 @@ stff
     }
 
     function resetLogin() {
+        document.getElementById('map').style.display = 'none';
+        document.getElementById('adifPanel').style.display = 'none';
         document.getElementById('messageButtonPanel').style.display = 'none';
         document.getElementById('messagePanel').style.display = 'none';
-        document.getElementById('floatingPanel').style.display = 'inline-block';
-        document.getElementById('loginFormDiv').style.display = 'block';
         document.getElementById('footerLeft').style.display = 'none';
         document.getElementById('message').innerHTML = '';
+        document.getElementById('loginPanel').style.display = 'inline-block';
     }
 
     function toggleDetails() {
-        let checked = document.getElementById('detailsButton').checked;
-        document.getElementById('detailsPanel').style.display = checked ? 'inline-block' : 'none';
+
+        document.getElementById('detailsPanel').style.display = document.getElementById('detailsPanel').style.display !== 'inline-block' ? 'inline-block' : 'none';
+    }
+
+    function showAdifPanel(b) {
+        document.getElementById('adifPanel').style.display = b ? 'inline-block' : 'none';
     }
 </script>
 </body>
