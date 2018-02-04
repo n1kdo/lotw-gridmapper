@@ -5,7 +5,7 @@
 
 LICENSE:
 
-Copyright (c) 2017, Jeffrey B. Otterson, N1KDO
+Copyright (c) 2017, 2018 Jeffrey B. Otterson, N1KDO
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             border: 0;
             font-family: sans-serif;
         }
+
         FORM {
             text-align: center;
             display: inline-block;
         }
+
+        input:invalid {
+            border-color: red;
+        }
+
         .adifPanel {
             display: none;
             left: 20vw;
@@ -52,11 +58,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             z-index: 100;
             background-color: aliceblue;
         }
+
         .adifText {
             font-family: monospace;
             width: 50vw;
             height: 80vh;
         }
+
         .adifUrlText {
             font-family: monospace;
             font-size: 0.8em;
@@ -64,18 +72,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             border: 1px solid black;
             word-wrap: break-word;
         }
+
         .bandLabel {
             margin-right: 0.5em;
             white-space: nowrap;
         }
+
         .bandRadio {
             margin-right: 0px;
         }
+
         .detailsHeading {
             text-align: center;
             font-weight: bold;
             font-size: 1.2em;
         }
+
         .detailsPanel {
             display: none;
             position: absolute;
@@ -86,21 +98,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             padding: 0.25em;
             z-index: 1;
         }
+
         .detailsTable {
             border: 0;
             border-collapse: collapse;
             margin: 0 auto;
         }
+
         .detailsTable TH {
             border: 1px solid black;
             border-collapse: collapse;
         }
+
         .detailsTable TD {
             border: 1px solid black;
             border-collapse: collapse;
             text-align: right;
             width: 3em;
         }
+
         .floatingPanel {
             display: none;
             top: 50%;
@@ -111,6 +127,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             z-index: 1;
             background-color: aliceblue;
         }
+
         .footer {
             position: absolute;
             bottom: 0;
@@ -120,11 +137,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             height: 2vh;
             font-size: 2vh;
         }
+
         .footerLeft {
             position: absolute;
             bottom: 0;
             left: 0;
         }
+
         .footerMid {
             position: absolute;
             bottom: 0;
@@ -134,35 +153,42 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             margin: 0 auto;
             width: 10vh;
         }
+
         .footerRight {
             position: absolute;
             right: 0;
             bottom: 0;
         }
+
         .formField {
             width: 10em;
             font-size: 2vh;
             height: 2vh;
             text-align: left;
         }
+
         .header {
             height: 8vh;
             font-size: 7vh;
             text-align: center;
         }
+
         .map {
             display: none;
             width: 100%;
             height: 90vh;
             margin: auto;
         }
+
         .paranoids {
             font-size: 0.666em;
         }
+
         .statusLineButton {
             font-size: 0.6em;
             font-weight: bold;
         }
+
         .loginFormDiv {
             text-align: center;
             margin: 1em;
@@ -186,13 +212,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </tr>
             <tr>
                 <td style='text-align: right;'><label for='loginName'>Username:</label></td>
-                <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField'
-                                                     onchange="updateAdifUrl()"></td>
+                <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField' autofocus
+                                                     onchange="updateAdifUrl()" title="Your LoTW Callsign" required
+                                                     pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
+                </td>
             </tr>
             <tr>
                 <td style='text-align: right;'><label for='password'>Password:</label></td>
-                <td style='text-align: left;'><input type='password' maxlength='16' name='password' id='password'
-                                                     class='formField'></td>
+                <td style='text-align: left;'><input type='password' minlength="4" maxlength='16' name='password' id='password'
+                                                     required title="Your LoTW Password" class='formField'></td>
             </tr>
             <tr>
                 <td colspan='2'>
@@ -253,13 +281,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </tr>
             <tr>
                 <td style='text-align: right;'><label for='startDate'>Start Date:</label></td>
-                <td style='text-align: left;'><input type='date' id='startDate' value='2018-01-01' class='formField'
-                                                     onchange="updateAdifUrl()"></td>
+                <td style='text-align: left;'><input type='date' id='startDate' class='formField'
+                                                     min='1900-01-01' onchange="updateAdifUrl()"></td>
             </tr>
             <tr>
                 <td style='text-align: right;'><label for='endDate'>End Date:</label></td>
                 <td style='text-align: left;'><input type='date' id='endDate' class='formField'
-                                                     onchange="updateAdifUrl()"></td>
+                                                     min='1900-01-01' onchange="updateAdifUrl()"></td>
             </tr>
             <tr>
                 <td style='text-align: right;'><label for='ffmaButton'>Show Unworked FFMA:</label></td>
@@ -313,7 +341,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
     </div>
     <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180127</div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180204</div>
 </div>
 <script>
     const ffma_grids = [
@@ -363,8 +391,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     function loaded() {
         var today = new Date().toISOString().split('T')[0];
-        var endDateInput = document.getElementById('endDate');
-        endDateInput.setAttribute('min', today);
+        var firstDate = today.substring(0, 8) + '01';
+        var startDate = document.getElementById('startDate');
+        startDate.value = firstDate;
+        startDate.max = today;
+        var endDate = document.getElementById('endDate');
+        endDate.max = today;
         endDate.value = today;
         updateAdifUrl()
         document.getElementById('loginPanel').style.display = 'inline-block';
@@ -732,7 +764,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function updateAdifUrl() {
-        let username = document.getElementById('loginName').value;
+        let username = document.getElementById('loginName').value.trim();
         let password = '*******';
         let band = document.querySelector('input[name="band"]:checked').value;
         let url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
@@ -765,22 +797,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function callLotw() {
-        document.getElementById('loginPanel').style.display = 'none';
-        document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>';
-        //document.getElementById('footerLeft').style.display = 'none';
-        document.getElementById('messageButtonPanel').style.display = 'none';
-        document.getElementById('messagePanel').style.display = 'block';
-        let username = document.getElementById('loginName').value;
-        let password = document.getElementById('password').value;
-        let band = document.querySelector('input[name="band"]:checked').value;
-        let url = 'lotwreport.php' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
-        if (band != 'all') {
-            url = url + '&qso_band=' + band;
+        if (document.getElementById('loginName').checkValidity() &&
+            document.getElementById('password').checkValidity()) {
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>';
+            document.getElementById('messageButtonPanel').style.display = 'none';
+            document.getElementById('messagePanel').style.display = 'block';
+            let username = document.getElementById('loginName').value.trim();
+            let password = document.getElementById('password').value;
+            let band = document.querySelector('input[name="band"]:checked').value;
+            let url = 'lotwreport.php' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
+            if (band != 'all') {
+                url = url + '&qso_band=' + band;
+            }
+            let startDate = document.getElementById('startDate').value;
+            let endDate = document.getElementById('endDate').value;
+            url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
+            asyncLoad(url, processReceivedData);
+        } else {
+            alert('Check username and password');
         }
-        let startDate = document.getElementById('startDate').value;
-        let endDate = document.getElementById('endDate').value;
-        url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
-        asyncLoad(url, processReceivedData);
     }
 
     function resetLogin() {
@@ -794,7 +830,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function toggleDetails() {
-
         document.getElementById('detailsPanel').style.display = document.getElementById('detailsPanel').style.display !== 'inline-block' ? 'inline-block' : 'none';
     }
 
