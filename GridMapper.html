@@ -211,7 +211,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 </td>
             </tr>
             <tr>
-                <td style='text-align: right;'><label for='loginName'>Username:</label></td>
+                <td style='text-align: right;'><label for='loginName'>LoTW Username:</label></td>
                 <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField' autofocus
                                                      onchange="updateAdifUrl()" title="Your LoTW Callsign" required
                                                      pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
@@ -221,6 +221,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 <td style='text-align: right;'><label for='password'>Password:</label></td>
                 <td style='text-align: left;'><input type='password' minlength="4" maxlength='16' name='password' id='password'
                                                      required title="Your LoTW Password" class='formField'></td>
+            </tr>
+            <tr><td colspan="2">
+                <div class="paranoids">
+                If you have more than one callsign associated with your LoTW account, you can select just one to analyze.
+                If you only have one callsign, or want to analyze data for all of your callsigns, leave this field blank.
+                </div>
+            </td></tr>
+            <tr>
+                <td style='text-align: right;'><label for='ownCall'>Callsign:</label></td>
+                <td style='text-align: left;'><input maxlength='16' name='login' id='ownCall' class='formField' autofocus
+                                                     onchange="updateAdifUrl()" title="Callsign if you have multiple registered with LoTW, else blank"
+                                                     pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
+                </td>
             </tr>
             <tr>
                 <td colspan='2'>
@@ -341,7 +354,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
     </div>
     <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180204</div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180219</div>
 </div>
 <script>
     const ffma_grids = [
@@ -774,6 +787,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         let startDate = document.getElementById('startDate').value;
         let endDate = document.getElementById('endDate').value;
         url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
+        let owncall = document.getElementById('ownCall').value.trim();
+        if (owncall.length > 0) {
+            url = url + '&qso_owncall=' + owncall;
+        }
         document.getElementById('adifUrlText').innerHTML = url;
     }
 
@@ -813,6 +830,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             let startDate = document.getElementById('startDate').value;
             let endDate = document.getElementById('endDate').value;
             url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
+            let owncall = document.getElementById('ownCall').value.trim();
+            if (owncall.length > 0) {
+                url = url + '&qso_owncall=' + owncall;
+            }
             asyncLoad(url, processReceivedData);
         } else {
             alert('Check username and password');
