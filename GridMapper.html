@@ -79,7 +79,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         }
 
         .bandRadio {
-            margin-right: 0px;
+            margin-right: 0;
         }
 
         .detailsHeading {
@@ -165,6 +165,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             font-size: 2vh;
             height: 2vh;
             text-align: left;
+            border: 1px solid;
         }
 
         .header {
@@ -193,6 +194,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             text-align: center;
             margin: 1em;
         }
+
+        .qsosInfo {
+            font-size: 1em;
+            min-width: 20em;
+            max-height: 20em;
+        }
+
     </style>
     <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyD19s_wRG_27R9nDQ3jLoriOLaHThReZv0' defer></script>
     <script src='https://rawgit.com/googlemaps/js-map-label/gh-pages/src/maplabel-compiled.js' defer></script>
@@ -354,7 +362,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
     </div>
     <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180219</div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180312</div>
 </div>
 <script>
     const ffma_grids = [
@@ -399,19 +407,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         'FN11', 'FN12', 'FN13', 'FN14', 'FN20', 'FN21', 'FN22', 'FN23', 'FN24', 'FN25', 'FN30', 'FN31',
         'FN32', 'FN33', 'FN34', 'FN35', 'FN41', 'FN42', 'FN43', 'FN44', 'FN45', 'FN46', 'FN51', 'FN53',
         'FN54', 'FN55', 'FN56', 'FN57', 'FN64', 'FN65', 'FN66', 'FN67'];
-    const BANDS = ['160M', '80M', '40M', '30M', '20M', '17M', '15M', '12M', '10M', '6M', '2M', '70CM'];
+    const BANDS = ['160M', '80M', '60M', '40M', '30M', '20M', '17M', '15M', '12M', '10M', '6M', '2M', '70CM'];
     const MODES = ['CW', 'DATA', 'PHONE'];
+    const COLORMAP = ['#0b0089', '#4100a0', '#6500aa', '#8500aa', '#a4109c', '#c03486',
+                      '#cf4875', '#e3615f', '#f28047', '#fb9b30', '#ffb804', '#fbdc00', '#f0fb00'];
 
     function loaded() {
-        var today = new Date().toISOString().split('T')[0];
-        var firstDate = today.substring(0, 8) + '01';
-        var startDate = document.getElementById('startDate');
+        let today = new Date().toISOString().split('T')[0];
+        let firstDate = today.substring(0, 8) + '01';
+        let startDate = document.getElementById('startDate');
         startDate.value = firstDate;
         startDate.max = today;
-        var endDate = document.getElementById('endDate');
+        let endDate = document.getElementById('endDate');
         endDate.max = today;
         endDate.value = today;
-        updateAdifUrl()
+        updateAdifUrl();
         document.getElementById('loginPanel').style.display = 'inline-block';
     }
 
@@ -428,7 +438,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         return {lat: lat, lng: lon};
     }
 
-    function addSquare(map, gridSquare) {
+    function convertDate(date) {
+        if (date.length === 8) {
+            date = date.substring(0,4) + '-' + date.substring(4,6) + '-' + date.substring(6,8);
+        }
+        return date;
+    }
+
+    function qsosData(gridSquare, qsos) {
+        qsos.sort(function(a, b){
+            let x = a.qso_date + a.call;
+            let y = b.qso_date + b.call;
+            if (x < y) {return -1;}
+            if (x > y) {return 1;}
+            return 0;
+        });
+        let data = '';
+        data += '<div class="qsosInfo"><table>' +
+            '<tr><th colspan="4" style="font-size: 2em;">' + gridSquare + '</th></tr>' +
+            '<tr><th colspan="4">' + qsos.length + ' Confirmed QSOs</th></tr>' +
+            '<tr><th>Call</th><th>Band</th><th>Mode</th><th>Date</th></tr>';
+        for (let qso of qsos) {
+            data += '<tr><td>' + qso['call'] + '</td>';
+            data += '<td>' + qso['band'] + '</td>';
+            data += '<td>' + qso['mode'] + '</td>';
+            data += '<td>' + convertDate(qso['qso_date']) + '</td></tr>';
+        }
+        data += '</table></div>';
+        return data;
+    }
+
+    function addSquare(map, gridSquare, squareQsos, most) {
         let coords = gridToCoordinates(gridSquare);
         let lat = coords['lat'];
         let lon = coords['lng'];
@@ -440,15 +480,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             new google.maps.LatLng(lat, lon)
         ];
 
+        let scale = most / COLORMAP.length;
+        scale = Math.max(scale, 1);
+        let index = Math.trunc(squareQsos.length / scale);
+        index = Math.min(index, COLORMAP.length -1);
+        let color = COLORMAP[index];
+
         let square = new google.maps.Polygon({
             path: mapcoords,
-            strokeColor: '#ff0000',
+            strokeColor: color,
             strokeOpacity: 1.0,
-            strokeWeight: 1,
-            fillColor: '#ff0000',
-            fillOpacity: 0.25
+            strokeWeight: 0.25,
+            fillColor: color,
+            fillOpacity: 0.33
         });
         square.setMap(map);
+        square.center = new google.maps.LatLng(lat + 0.7, lon + 1);
+
+        let infoContent = qsosData(gridSquare, squareQsos);
+        let infoWindow = new google.maps.InfoWindow({
+            content: infoContent,
+            disableAutoPan: true,
+            position: square.center
+        });
+
+        square.addListener('click', function() {
+            infoWindow.open(map);
+        });
 
         new MapLabel({
             text: gridSquare.toUpperCase(),
@@ -481,7 +539,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             align: 'center',
             minZoom: 5,
             maxZoom: 5
-
         });
         new MapLabel({
             text: gridSquare.toUpperCase(),
@@ -497,10 +554,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function drawMap() {
+        let mapStyle = [
+            {
+                elementType: "geometry",
+                stylers: [{color: "#f5f5f5"}]
+            },
+            {
+                featureType: "water",
+                elementType: "geometry",
+                stylers: [{"color": "#c9c9c9"}]
+            },
+            {
+                featureType: "water",
+                elementType: "labels.text.fill",
+                stylers: [{"color": "#9e9e9e"}]
+            },
+            {
+                featureType: "administrative.country",
+                elementType: "geometry.stroke",
+                stylers: [{"color": "#000000"}, {"visibility": "on"}]
+            },
+            {
+                featureType: "administrative.province",
+                elementType: "geometry.stroke",
+                stylers: [{"color": "#000000"}, {"visibility": "on"}]
+            },
+        ];
         let mapProp = {
             center: new google.maps.LatLng(37, -97),
             zoom: 4,
-            minZoom: 2
+            minZoom: 2,
+            styles: mapStyle
         };
         return new google.maps.Map(document.getElementById('map'), mapProp);
     }
@@ -523,6 +607,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function parse_adif(text) {
         let qsos = [];
         let qso = {};
+        let numrec = 0;
         let looks_like_adif = false;
         let lines = text.split('\n');
         for (let i = 0; i < lines.length; i++) {
@@ -572,18 +657,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         let map = drawMap();
         let grids = getGridsFromQsos(qsos);
         let username = document.getElementById('loginName').value;
+        let ownCall =  document.getElementById('ownCall').value.trim();
+        if (ownCall.length === 0) {
+            ownCall = username;
+        }
         let band = document.querySelector('input[name="band"]:checked').value;
         calculateDetails(qsos);
         if (ffmaMode) {
             let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
             draw_grids(map, missingGrids);
-            document.getElementById('header').innerHTML = username.toUpperCase() + ' Unconfirmed FFMA Grids';
+            document.getElementById('header').innerHTML = ownCall.toUpperCase() + ' Unconfirmed FFMA Grids';
             document.getElementById('detailsPanel').innerHTML = '' + missingGrids.size + ' Unconfirmed FFMA Grid Squares';
             document.getElementById('footerLeft').style.display = 'block';
         } else {
             draw_grids(map, grids);
-            let title = username.toUpperCase() + ' grids confirmed'
-            if (band != 'all') {
+            let title = ownCall.toUpperCase() + ' grids confirmed';
+            if (band !== 'all') {
                 title = title + ' on ' + band;
             }
             document.getElementById('header').innerHTML = title;
@@ -594,6 +683,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function processReceivedData(xhr) {
         if (xhr.status === 200) {
             let text = xhr.responseText;
+            document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Crunching Data.</p><p>This might take a minute or so.</p>';
             document.getElementById('adifText').value = text;
             let qsos = parse_adif(text);
             if (qsos != null) {
@@ -630,14 +720,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function getGridsFromQsos(qsos) {
-        let grids = new Set();
+        let grids = {};
         for (let i = 0; i < qsos.length; i++) {
             let qso = qsos[i];
             let qso_grids = getGridsFromQso(qso);
             for (let grid of qso_grids) {
-                if (!grids.has(grid)) {
-                    grids.add(grid);
+                if (!grids[grid]) {
+                    grids[grid] = [];
                 }
+                grids[grid].push(qso);
             }
         }
         return grids;
@@ -658,7 +749,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 }
             }
             // band-total
-            bmKey = qso['band']
+            bmKey = qso['band'];
             if (!stuff[bmKey]) {
                 stuff[bmKey] = new Set();
             }
@@ -668,7 +759,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 }
             }
             // mode-total
-            bmKey = qso['app_lotw_modegroup']
+            bmKey = qso['app_lotw_modegroup'];
             if (!stuff[bmKey]) {
                 stuff[bmKey] = new Set();
             }
@@ -694,8 +785,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         // narrow the bands shown in the table to only the bands that have QSLs
         let usedBands = [];
         for (let band of BANDS) {
-            bmKey = band;
-            let val = stuff[bmKey];
+            let val = stuff[band];
             let count = 0;
             if (val) {
                 count = val.size;
@@ -733,14 +823,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             if (val) {
                 count = val.size;
             }
-            t += '<td>' + count + '</td>'
+            t += '<td>' + count + '</td>';
             t += '</tr>\n';
         }
         t += '<tr>';
         t += '<th>All</th>';
         for (let band of usedBands) {
-            bmKey = band;
-            let val = stuff[bmKey];
+            let val = stuff[band];
             let count = 0;
             if (val) {
                 count = val.size;
@@ -752,7 +841,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         if (val) {
             count = val.size;
         }
-        t += '<td>' + count + '</td>'
+        t += '<td>' + count + '</td>';
         t += '</tr>\n';
 
         t += '</table>';
@@ -760,8 +849,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function draw_grids(map, grids) {
-        for (let grid of grids) {
-            addSquare(map, grid);
+        let biggest = [];
+        for (let square in grids) {
+            if (!biggest) {
+                biggest = grids[square];
+            }
+            if (grids[square].length > biggest.length) {
+                biggest = grids[square];
+            }
+        }
+        for (let square in grids) {
+            addSquare(map, square, grids[square], biggest.length);
         }
     }
 
@@ -781,15 +879,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         let password = '*******';
         let band = document.querySelector('input[name="band"]:checked').value;
         let url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
-        if (band != 'all') {
+        if (band !== 'all') {
             url = url + '&qso_band=' + band;
         }
         let startDate = document.getElementById('startDate').value;
         let endDate = document.getElementById('endDate').value;
         url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
-        let owncall = document.getElementById('ownCall').value.trim();
-        if (owncall.length > 0) {
-            url = url + '&qso_owncall=' + owncall;
+        let ownCall = document.getElementById('ownCall').value.trim();
+        if (ownCall.length > 0) {
+            url = url + '&qso_owncall=' + ownCall;
         }
         document.getElementById('adifUrlText').innerHTML = url;
     }
@@ -814,8 +912,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function callLotw() {
-        if (document.getElementById('loginName').checkValidity() &&
-            document.getElementById('password').checkValidity()) {
+        if (document.getElementById('loginName').checkValidity()) { // && document.getElementById('password').checkValidity()) {
             document.getElementById('loginPanel').style.display = 'none';
             document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>';
             document.getElementById('messageButtonPanel').style.display = 'none';
@@ -824,7 +921,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             let password = document.getElementById('password').value;
             let band = document.querySelector('input[name="band"]:checked').value;
             let url = 'lotwreport.php' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
-            if (band != 'all') {
+            if (band !== 'all') {
                 url = url + '&qso_band=' + band;
             }
             let startDate = document.getElementById('startDate').value;
@@ -846,7 +943,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         document.getElementById('messageButtonPanel').style.display = 'none';
         document.getElementById('messagePanel').style.display = 'none';
         document.getElementById('footerLeft').style.display = 'none';
+        document.getElementById('detailsPanel').style.display = 'none';
         document.getElementById('message').innerHTML = '';
+        document.getElementById('header').innerHTML = 'Map Grids Confirmed on LoTW';
         document.getElementById('loginPanel').style.display = 'inline-block';
     }
 
