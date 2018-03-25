@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 
-6mGrids.html -- read Logbook of the World, draw confirmed grids on a map.
+GridMapper.html -- read Logbook of the World, draw confirmed grids on a map.
 
 LICENSE:
 
@@ -33,6 +33,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <head>
     <title>N1KDO LoTW Grid Mapper</title>
     <meta name='viewport' content='width=device-width, initial-scale=0.75'>
+    <!-- this is the google analytics site tag for www.n1kdo.com -->
+    <!-- please DO NOT use this tracking code... -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-55192949-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-55192949-1');
+    </script>
+    <!-- end google analytics -->
     <style>
         BODY {
             margin: 0;
@@ -683,22 +694,34 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function processReceivedData(xhr) {
         if (xhr.status === 200) {
             let text = xhr.responseText;
-            document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Crunching Data.</p><p>This might take a minute or so.</p>';
-            document.getElementById('adifText').value = text;
-            let qsos = parse_adif(text);
-            if (qsos != null) {
-                if (qsos.length > 0) { // data is good
-                    mapQsos(qsos);
+            if (text.startsWith('ARRL Logbook of the World Status Report')) {
+                document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Crunching Data.</p><p>This might take a minute or so.</p>';
+                document.getElementById('adifText').value = text;
+                let qsos = parse_adif(text);
+                if (qsos != null) {
+                    if (qsos.length > 0) { // data is good
+                        mapQsos(qsos);
+                    } else {
+                        document.getElementById('message').innerHTML = 'No QSLS found.';
+                        document.getElementById('messageButtonPanel').style.display = 'block';
+                        document.getElementById('messagePanel').style.display = 'inline-block';
+                    }
+                }
+            } else {
+                if (text.includes('Username/password incorrect')) {
+                    document.getElementById('message').innerHTML = 'LoTW reports "Username/Password incorrect".';
+                    document.getElementById('messageButtonPanel').style.display = 'block';
+                    document.getElementById('messagePanel').style.display = 'inline-block';
                 } else {
-                    document.getElementById('message').innerHTML = 'No QSLS found.';
+                    document.getElementById('message').innerHTML = 'Logbook of the World API call failed.';
                     document.getElementById('messageButtonPanel').style.display = 'block';
                     document.getElementById('messagePanel').style.display = 'inline-block';
                 }
-            } else {
-                document.getElementById('message').innerHTML = 'Logbook of the World login failed.';
-                document.getElementById('messageButtonPanel').style.display = 'block';
-                document.getElementById('messagePanel').style.display = 'inline-block';
             }
+        } else {
+            document.getElementById('message').innerHTML = 'Unexpected response: ' + xhr.statusText;
+            document.getElementById('messageButtonPanel').style.display = 'block';
+            document.getElementById('messagePanel').style.display = 'inline-block';
         }
     }
 

@@ -5,7 +5,7 @@ Single-Origin Policy.  Serves web service from the same host as the script.
 
 LICENSE:
 
-Copyright (c) 2017, Jeffrey B. Otterson, N1KDO
+Copyright (c) 2018, Jeffrey B. Otterson, N1KDO
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -47,19 +47,22 @@ foreach ($valid_args as &$a) {
 # error_log("url: " . $url);
 $login = $_REQUEST['login'];
 $password = $_REQUEST['password'];
-if ($login === 'n1kdo' && $password === '') {
-    $response = file_get_contents('lotwreport.adi');
+$client = $_SERVER['REMOTE_ADDR'];
+if ((strncmp("192.168.1.", $client,10) === 0) && $password === '') { // look for my cached adif
+    $response = file_get_contents($login . '.adi');
     $http_response_header = array("HTTP/1.1 200 OK",
         "Content-Type: application/x-arrl-adif",
     );
     error_log('debug local file mode');
 } else {
     $response = @file_get_contents($url) or "";
-    if ($login === 'n1kdo') {
-        $fp = fopen('lotwreport.adi', 'w');
-        if ($fp) {
-            fwrite($fp, $response);
-            fclose($fp);
+    if (strlen($response) > 0 && strpos($response, 'ARRL Logbook of the World Status Report') === 0) {
+        if ($login === 'n1kdo') { // cache my ADIF
+            $fp = fopen(strtolower($login) . '.adi', 'w');
+            if ($fp) {
+                fwrite($fp, $response);
+                fclose($fp);
+            }
         }
     }
 }
