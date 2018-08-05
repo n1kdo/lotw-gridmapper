@@ -45,19 +45,19 @@ foreach ($valid_args as &$a) {
     }
 }
 # error_log("url: " . $url);
-$login = $_REQUEST['login'];
+$login = strtolower($_REQUEST['login']);
 $password = $_REQUEST['password'];
 $client = $_SERVER['REMOTE_ADDR'];
+$http_response_header = array("HTTP/1.1 200 OK",
+    "Content-Type: application/x-arrl-adif",
+);
 if ((strncmp("192.168.1.", $client,10) === 0) && $password === '') { // look for my cached adif
     $response = file_get_contents($login . '.adi');
-    $http_response_header = array("HTTP/1.1 200 OK",
-        "Content-Type: application/x-arrl-adif",
-    );
     error_log('debug local file mode');
 } else {
     $response = @file_get_contents($url) or "";
     if (strlen($response) > 0 && strpos($response, 'ARRL Logbook of the World Status Report') === 0) {
-        if ($login === 'n1kdo') { // cache my ADIF
+        if (strtolower($login) === 'n1kdo') { // cache my ADIF
             $fp = fopen(strtolower($login) . '.adi', 'w');
             if ($fp) {
                 fwrite($fp, $response);

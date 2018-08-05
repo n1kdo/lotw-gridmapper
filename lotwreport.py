@@ -5,7 +5,8 @@ lotwreport.py: proxy for ARRL LoTW lotwreport.adi web service, which does not
 support CORS headers and thus cannot be called from a script that is loaded
 from any other server.  This CGI must be served from the same host name as
 any script that wishes to call it.  Because I do not want other peoples'
-scripts to call this service, it deliberately does nnot support CORS, either.
+scripts to call this service, it deliberately does not support CORS, either.
+So don't try to call it on my server, it won't work.
 """
 #
 # LICENSE:
@@ -33,14 +34,16 @@ scripts to call this service, it deliberately does nnot support CORS, either.
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import cgi, os, urllib2, sys
+import cgi
+import os
+import urllib2
 
-valid_args = ['login', 'password', 'qso_query',  'qso_qsl',
-    'qso_qslsince', 'qso_qsorxsince', 'qso_owncall', 'qso_callsign',
-    'qso_mode', 'qso_band', 'qso_dxcc',
-    'qso_startdate', 'qso_starttime',
-    'qso_enddate', 'qso_endtime',
-    'qso_mydetail', 'qso_qsldetail', 'qso_withown']
+valid_args = ['login', 'password', 'qso_query', 'qso_qsl',
+              'qso_qslsince', 'qso_qsorxsince', 'qso_owncall', 'qso_callsign',
+              'qso_mode', 'qso_band', 'qso_dxcc',
+              'qso_startdate', 'qso_starttime',
+              'qso_enddate', 'qso_endtime',
+              'qso_mydetail', 'qso_qsldetail', 'qso_withown']
 
 form = cgi.FieldStorage()
 callsign = form['login'].value if 'login' in form else None
@@ -54,7 +57,7 @@ for arg in valid_args:
         url = url + pfx + arg + '=' + form[arg].value
         pfx = '&'
 
-if callsign == 'n1kdo' and password is None and client.startswith('192.168.1'):
+if callsign.lower() == 'n1kdo' and password is None and client.startswith('192.168.1'):
     print 'Content-Type: application/x-arrl-adif'
     print
     try:
@@ -69,7 +72,7 @@ else:
     response = urllib2.urlopen(req, None, 600)
     data = response.read()
     if callsign == 'n1kdo' and 'ARRL Logbook of the World Status Report' in data:
-        filename = callsign + '.adi'
+        filename = callsign.lower() + '.adi'
         with open(filename, 'w') as file:
             file.write(data)
     info = response.info()

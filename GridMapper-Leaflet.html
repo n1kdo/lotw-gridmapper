@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<!--
+
+GridMapper.html -- read Logbook of the World, draw confirmed grids on a map.
+
+LICENSE:
+
+Copyright (c) 2017, 2018 Jeffrey B. Otterson, N1KDO
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<html>
+<head>
+    <title>N1KDO LoTW Grid Mapper</title>
+    <meta name='viewport' content='width=device-width, initial-scale=0.75'>
+    <!-- this is the google analytics site tag for www.n1kdo.com -->
+    <!-- please DO NOT use this tracking code... -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-55192949-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-55192949-1');
+    </script>
+    -->
+    <!-- end google analytics -->
+
+    <!-- leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css"
+          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+          crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"
+            integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
+            crossorigin=""></script>
+
+    <style>
+        BODY {
+            margin: 0;
+            border: 0;
+            font-family: sans-serif;
+        }
+
+        FORM {
+            text-align: center;
+            display: inline-block;
+        }
+
+        input:invalid {
+            border-color: red;
+        }
+
+        .adifPanel {
+            display: none;
+            left: 20vw;
+            top: 10vh;
+            position: fixed;
+            border: 5px ridge #ccc;
+            z-index: 1000;
+            background-color: aliceblue;
+        }
+
+        .adifText {
+            font-family: monospace;
+            width: 50vw;
+            height: 80vh;
+        }
+
+        .adifUrlText {
+            font-family: monospace;
+            font-size: 0.8em;
+            background-color: white;
+            border: 1px solid black;
+            word-wrap: break-word;
+        }
+
+        .bandLabel {
+            margin-right: 0.5em;
+            white-space: nowrap;
+        }
+
+        .bandRadio {
+            margin-right: 0;
+        }
+
+        .detailsHeading {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .detailsPanel {
+            display: none;
+            position: absolute;
+            border: 5px ridge #ccc;
+            background-color: aliceblue;
+            left: 0;
+            bottom: 2vh;
+            padding: 0.25em;
+            z-index: 1000;
+        }
+
+        .detailsTable {
+            border: 0;
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+
+        .detailsTable TH {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        .detailsTable TD {
+            border: 1px solid black;
+            border-collapse: collapse;
+            text-align: right;
+            width: 3em;
+        }
+
+        .floatingPanel {
+            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            position: fixed;
+            border: 5px ridge #ccc;
+            z-index: 1;
+            background-color: aliceblue;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            vertical-align: bottom;
+            height: 2vh;
+            font-size: 2vh;
+        }
+
+        .footerLeft {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .footerMid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            margin: 0 auto;
+            width: 10vh;
+        }
+
+        .footerRight {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+
+        .formField {
+            width: 10em;
+            font-size: 2vh;
+            height: 2vh;
+            text-align: left;
+            border: 1px solid;
+        }
+
+        .grid-label {
+            border: none;
+            border-radius: unset;
+            color: black;
+            background-color: inherit;
+            box-shadow: none;
+            font-face: sans-serif;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: normal;
+            text-shadow: 0 0 4px white;
+        }
+
+        .grid-label:before {
+            border: none;
+        }
+
+        .header {
+            height: 8vh;
+            font-size: 7vh;
+            text-align: center;
+        }
+
+        .loginFormDiv {
+            text-align: center;
+            margin: 1em;
+        }
+
+        .map {
+            display: none;
+            width: 100%;
+            height: 90vh;
+            margin: auto;
+        }
+
+        .paranoids {
+            font-size: 0.666em;
+        }
+
+        .statusLineButton {
+            font-size: 0.6em;
+            font-weight: bold;
+        }
+
+        .reportPanel {
+            background-color: aliceblue;
+            border: 5px ridge #ccc;
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 0 0.5em 0 0.5em;
+            z-index: 1000;
+        }
+
+        .reportText {
+            font-family: monospace;
+        }
+
+        .qsosInfo {
+            font-size: 1em;
+            min-width: 20em;
+            max-height: 20em;
+        }
+
+    </style>
+</head>
+<body onload='loaded()'>
+<div id='header' class='header'>
+    Map Grids Confirmed on LoTW
+</div>
+<div id='loginPanel' class='floatingPanel'>
+    <form id='loginForm'>
+        <table style='border-spacing: 0.75em;'>
+            <tbody>
+            <tr>
+                <td colspan='2' align='center'>
+                    Enter your <b>LoTW</b> credentials.
+                </td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='loginName'>LoTW Username:</label></td>
+                <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField'
+                                                     value='n1kdo'
+                                                     autofocus
+                                                     onchange="updateAdifUrl()" title="Your LoTW Callsign" required
+                                                     pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
+                </td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='password'>Password:</label></td>
+                <td style='text-align: left;'><input type='password' minlength="4" maxlength='16' name='password'
+                                                     id='password'
+                                                     required title="Your LoTW Password" class='formField'></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="paranoids">
+                        If you have more than one callsign associated with your LoTW account, you can select just one to
+                        analyze.
+                        If you only have one callsign, or want to analyze data for all of your callsigns, leave this
+                        field blank.
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='ownCall'>Callsign:</label></td>
+                <td style='text-align: left;'><input maxlength='16' name='login' id='ownCall' class='formField'
+                                                     autofocus
+                                                     onchange="updateAdifUrl()"
+                                                     title="Callsign if you have multiple registered with LoTW, else blank"
+                                                     pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
+                </td>
+            </tr>
+            <tr>
+                <td colspan='2'>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='all' class='bandRadio' checked
+                               onchange="updateAdifUrl()">
+                        All Bands
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='160m' class='bandRadio' onchange="updateAdifUrl()">
+                        160M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='80m' class='bandRadio' onchange="updateAdifUrl()">
+                        80M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='60m' class='bandRadio' onchange="updateAdifUrl()">
+                        60M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='40m' class='bandRadio' onchange="updateAdifUrl()">
+                        40M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='30m' class='bandRadio' onchange="updateAdifUrl()">
+                        30M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='20m' class='bandRadio' onchange="updateAdifUrl()">
+                        20M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='17m' class='bandRadio' onchange="updateAdifUrl()">
+                        17M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='15m' class='bandRadio' onchange="updateAdifUrl()">
+                        15M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='12m' class='bandRadio' onchange="updateAdifUrl()">
+                        12M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='10m' class='bandRadio' onchange="updateAdifUrl()">
+                        10M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='6m' class='bandRadio' onchange="updateAdifUrl()">
+                        6M
+                    </label>
+                    <label class='bandLabel'>
+                        <input type='radio' name='band' value='2m' class='bandRadio' onchange="updateAdifUrl()">
+                        2M
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='startDate'>Start Date:</label></td>
+                <td style='text-align: left;'><input type='date' id='startDate' class='formField'
+                                                     min='1900-01-01' onchange="updateAdifUrl()"></td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='endDate'>End Date:</label></td>
+                <td style='text-align: left;'><input type='date' id='endDate' class='formField'
+                                                     min='1900-01-01' onchange="updateAdifUrl()"></td>
+            </tr>
+            <tr>
+                <td style='text-align: right;'><label for='ffmaButton'>Show Unworked FFMA:</label></td>
+                <td style='text-align: left;'><input type='checkbox' id='ffmaButton'></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center">
+                    <button type='button' onclick='callLotw()'>Get ADIF and Plot</button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan='2'>
+                    <div class="paranoids">
+                        You may wish to bring their own ADIF, rather than fetch it through my server.<br>
+                        Use the URL below to fetch your ADIF, then use the button below to load and map it.
+                    </div>
+                    <div id="adifUrlText" class="adifUrlText"></div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan='2' align='center'>
+                    <button type='button' onclick='bringMyOwnADIF()'>Bring my own ADIF</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+<div id="messagePanel" class="floatingPanel">
+    <div id='message' class='loginFormDiv'>Please Wait.</div>
+    <div id='messageButtonPanel' class='loginFormDiv' style='display:none;'>
+        <button type='button' onclick='resetLogin()'>Try Again</button>
+    </div>
+</div>
+<div id='adifPanel' class='adifPanel'>
+    <div>
+        <textarea readonly id='adifText' class='adifText'></textarea>
+    </div>
+    <div>
+        <input type='button' value='plot to map' class='testButton' onclick='gridMapAdif()'>
+        <input type='button' value='start again' class='testButton' onclick='resetLogin()'>
+    </div>
+</div>
+<div id='reportPanel' class='reportPanel'></div>
+<div id='detailsPanel' class='detailsPanel'></div>
+<div id='map' class='map'></div>
+<div class='footer'>
+    <div id='footerLeft' class='footerLeft' style='display:none'>
+        <input type='button' id='detailsButton' class='statusLineButton' value="Details" onClick='toggleDetails()'>
+        <input type='button' id='reportButton' class='statusLineButton' value="Report" onClick='toggleReportPanel()'>
+        <input type='button' id='adifButton' class='statusLineButton' value='ADIF' onClick='showAdifPanel(true)'>
+        <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
+    </div>
+    <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180331</div>
+</div>
+<script>
+    const ffma_grids = [
+        'CM79', 'CM86', 'CM87', 'CM88', 'CM89', 'CM93', 'CM94', 'CM95', 'CM96', 'CM97', 'CM98', 'CM99',
+        'CN70', 'CN71', 'CN72', 'CN73', 'CN74', 'CN75', 'CN76', 'CN77', 'CN78', 'CN80', 'CN81', 'CN82',
+        'CN83', 'CN84', 'CN85', 'CN86', 'CN87', 'CN88', 'CN90', 'CN91', 'CN92', 'CN93', 'CN94', 'CN95',
+        'CN96', 'CN97', 'CN98', 'DL79', 'DL88', 'DL89', 'DL98', 'DL99', 'DM02', 'DM03', 'DM04', 'DM05',
+        'DM06', 'DM07', 'DM08', 'DM09', 'DM12', 'DM13', 'DM14', 'DM15', 'DM16', 'DM17', 'DM18', 'DM19',
+        'DM22', 'DM23', 'DM24', 'DM25', 'DM26', 'DM27', 'DM28', 'DM29', 'DM31', 'DM32', 'DM33', 'DM34',
+        'DM35', 'DM36', 'DM37', 'DM38', 'DM39', 'DM41', 'DM42', 'DM43', 'DM44', 'DM45', 'DM46', 'DM47',
+        'DM48', 'DM49', 'DM51', 'DM52', 'DM53', 'DM54', 'DM55', 'DM56', 'DM57', 'DM58', 'DM59', 'DM61',
+        'DM62', 'DM63', 'DM64', 'DM65', 'DM66', 'DM67', 'DM68', 'DM69', 'DM70', 'DM71', 'DM72', 'DM73',
+        'DM74', 'DM75', 'DM76', 'DM77', 'DM78', 'DM79', 'DM80', 'DM81', 'DM82', 'DM83', 'DM84', 'DM85',
+        'DM86', 'DM87', 'DM88', 'DM89', 'DM90', 'DM91', 'DM92', 'DM93', 'DM94', 'DM95', 'DM96', 'DM97',
+        'DM98', 'DM99', 'DN00', 'DN01', 'DN02', 'DN03', 'DN04', 'DN05', 'DN06', 'DN07', 'DN08', 'DN10',
+        'DN11', 'DN12', 'DN13', 'DN14', 'DN15', 'DN16', 'DN17', 'DN18', 'DN20', 'DN21', 'DN22', 'DN23',
+        'DN24', 'DN25', 'DN26', 'DN27', 'DN28', 'DN30', 'DN31', 'DN32', 'DN33', 'DN34', 'DN35', 'DN36',
+        'DN37', 'DN38', 'DN40', 'DN41', 'DN42', 'DN43', 'DN44', 'DN45', 'DN46', 'DN47', 'DN48', 'DN50',
+        'DN51', 'DN52', 'DN53', 'DN54', 'DN55', 'DN56', 'DN57', 'DN58', 'DN60', 'DN61', 'DN62', 'DN63',
+        'DN64', 'DN65', 'DN66', 'DN67', 'DN68', 'DN70', 'DN71', 'DN72', 'DN73', 'DN74', 'DN75', 'DN76',
+        'DN77', 'DN78', 'DN80', 'DN81', 'DN82', 'DN83', 'DN84', 'DN85', 'DN86', 'DN87', 'DN88', 'DN90',
+        'DN91', 'DN92', 'DN93', 'DN94', 'DN95', 'DN96', 'DN97', 'DN98', 'EL06', 'EL07', 'EL08', 'EL09',
+        'EL15', 'EL16', 'EL17', 'EL18', 'EL19', 'EL28', 'EL29', 'EL39', 'EL49', 'EL58', 'EL59', 'EL79',
+        'EL84', 'EL86', 'EL87', 'EL88', 'EL89', 'EL94', 'EL95', 'EL96', 'EL97', 'EL98', 'EL99', 'EM00',
+        'EM01', 'EM02', 'EM03', 'EM04', 'EM05', 'EM06', 'EM07', 'EM08', 'EM09', 'EM10', 'EM11', 'EM12',
+        'EM13', 'EM14', 'EM15', 'EM16', 'EM17', 'EM18', 'EM19', 'EM20', 'EM21', 'EM22', 'EM23', 'EM24',
+        'EM25', 'EM26', 'EM27', 'EM28', 'EM29', 'EM30', 'EM31', 'EM32', 'EM33', 'EM34', 'EM35', 'EM36',
+        'EM37', 'EM38', 'EM39', 'EM40', 'EM41', 'EM42', 'EM43', 'EM44', 'EM45', 'EM46', 'EM47', 'EM48',
+        'EM49', 'EM50', 'EM51', 'EM52', 'EM53', 'EM54', 'EM55', 'EM56', 'EM57', 'EM58', 'EM59', 'EM60',
+        'EM61', 'EM62', 'EM63', 'EM64', 'EM65', 'EM66', 'EM67', 'EM68', 'EM69', 'EM70', 'EM71', 'EM72',
+        'EM73', 'EM74', 'EM75', 'EM76', 'EM77', 'EM78', 'EM79', 'EM80', 'EM81', 'EM82', 'EM83', 'EM84',
+        'EM85', 'EM86', 'EM87', 'EM88', 'EM89', 'EM90', 'EM91', 'EM92', 'EM93', 'EM94', 'EM95', 'EM96',
+        'EM97', 'EM98', 'EM99', 'EN00', 'EN01', 'EN02', 'EN03', 'EN04', 'EN05', 'EN06', 'EN07', 'EN08',
+        'EN10', 'EN11', 'EN12', 'EN13', 'EN14', 'EN15', 'EN16', 'EN17', 'EN18', 'EN20', 'EN21', 'EN22',
+        'EN23', 'EN24', 'EN25', 'EN26', 'EN27', 'EN28', 'EN29', 'EN30', 'EN31', 'EN32', 'EN33', 'EN34',
+        'EN35', 'EN36', 'EN37', 'EN38', 'EN40', 'EN41', 'EN42', 'EN43', 'EN44', 'EN45', 'EN46', 'EN47',
+        'EN48', 'EN50', 'EN51', 'EN52', 'EN53', 'EN54', 'EN55', 'EN56', 'EN57', 'EN58', 'EN60', 'EN61',
+        'EN62', 'EN63', 'EN64', 'EN65', 'EN66', 'EN67', 'EN70', 'EN71', 'EN72', 'EN73', 'EN74', 'EN75',
+        'EN76', 'EN80', 'EN81', 'EN82', 'EN83', 'EN84', 'EN85', 'EN86', 'EN90', 'EN91', 'EN92', 'FM02',
+        'FM03', 'FM04', 'FM05', 'FM06', 'FM07', 'FM08', 'FM09', 'FM13', 'FM14', 'FM15', 'FM16', 'FM17',
+        'FM18', 'FM19', 'FM25', 'FM26', 'FM27', 'FM28', 'FM29', 'FN00', 'FN01', 'FN02', 'FN03', 'FN10',
+        'FN11', 'FN12', 'FN13', 'FN14', 'FN20', 'FN21', 'FN22', 'FN23', 'FN24', 'FN25', 'FN30', 'FN31',
+        'FN32', 'FN33', 'FN34', 'FN35', 'FN41', 'FN42', 'FN43', 'FN44', 'FN45', 'FN46', 'FN51', 'FN53',
+        'FN54', 'FN55', 'FN56', 'FN57', 'FN64', 'FN65', 'FN66', 'FN67'];
+    const BANDS = ['160M', '80M', '60M', '40M', '30M', '20M', '17M', '15M', '12M', '10M', '6M', '2M', '70CM'];
+    const MODES = ['CW', 'DATA', 'PHONE'];
+    const COLORMAP = ['#0b0089', '#4100a0', '#6500aa', '#8500aa', '#a4109c', '#c03486',
+        '#cf4875', '#e3615f', '#f28047', '#fb9b30', '#ffb804', '#fbdc00', '#f0fb00'];
+
+    let map = null;
+
+    function loaded() {
+        let today = new Date().toISOString().split('T')[0];
+        let firstDate = today.substring(0, 8) + '01';
+        let startDate = document.getElementById('startDate');
+        startDate.value = firstDate;
+        startDate.max = today;
+        let endDate = document.getElementById('endDate');
+        endDate.max = today;
+        endDate.value = today;
+        updateAdifUrl();
+        document.getElementById('loginPanel').style.display = 'inline-block';
+    }
+
+    function gridToCoordinates(gridSquare) {
+        gridSquare = gridSquare.toLowerCase();
+        const a = 'a'.charCodeAt(0);
+        const zero = '0'.charCodeAt(0);
+        let lon = (gridSquare.charCodeAt(0) - a) * 20.0;
+        let lat = (gridSquare.charCodeAt(1) - a) * 10.0;
+        lon += (gridSquare.charCodeAt(2) - zero) * 2.0;
+        lat += (gridSquare.charCodeAt(3) - zero);
+        lon = lon - 180;
+        lat = lat - 90;
+        return {lat: lat, lng: lon};
+    }
+
+    function convertDate(date) {
+        if (date.length === 8) {
+            date = date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);
+        }
+        return date;
+    }
+
+    function qsosData(gridSquare, qsos) {
+        qsos.sort(function (a, b) {
+            let x = a.qso_date + a.call;
+            let y = b.qso_date + b.call;
+            if (x < y) {
+                return -1;
+            }
+            if (x > y) {
+                return 1;
+            }
+            return 0;
+        });
+        let data = '';
+        data += '<div class="qsosInfo"><table>' +
+            '<tr><th colspan="4" style="font-size: 2em;">' + gridSquare + '</th></tr>' +
+            '<tr><th colspan="4">' + qsos.length + ' Confirmed QSOs</th></tr>' +
+            '<tr><th>Call</th><th>Band</th><th>Mode</th><th>Date</th></tr>';
+        for (let qso of qsos) {
+            data += '<tr><td>' + qso['call'] + '</td>';
+            data += '<td>' + qso['band'] + '</td>';
+            data += '<td>' + qso['mode'] + '</td>';
+            data += '<td>' + convertDate(qso['qso_date']) + '</td></tr>';
+        }
+        data += '</table></div>';
+        return data;
+    }
+
+    function addSquare(map, gridSquare, squareQsos, most) {
+        let coords = gridToCoordinates(gridSquare);
+        let lat = coords['lat'];
+        let lon = coords['lng'];
+        let squarecorners = [[lat, lon], [lat + 1, lon + 2]];
+        // heat map
+        let scale = most / COLORMAP.length;
+        scale = Math.max(scale, 1);
+        let index = Math.trunc(squareQsos.length / scale);
+        index = Math.min(index, COLORMAP.length - 1);
+        let color = COLORMAP[index];
+        let square = L.rectangle(squarecorners, {color: "#000", weight: 0.5, fillColor: color, fillOpacity: 0.33});
+        square.bindTooltip(gridSquare.toUpperCase(),
+            {
+                permanent: true,
+                className: "grid-label",
+                offset: [0, 0],
+                direction: "center"
+            }
+        );
+        square.addTo(map);
+        square.on('click', function (ev) {
+            let infoContent = qsosData(gridSquare, squareQsos);
+            square.bindPopup(infoContent, {maxHeight:200}).openPopup();
+        });
+    }
+
+    function drawMap() {
+        if (map != null) {
+            map.remove();
+        }
+        let newMap = L.map('map', {
+            center: [37, -97],
+            zoom: 5,
+            minZoom: 2,
+            maxZoom: 10,
+        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(newMap);
+        return newMap;
+    }
+
+    function parse_adif_line(line) {
+        let result = [];
+        let stuff = line.match('<(.*)>(.*)');
+        if (stuff !== null) {
+            let s = stuff[1].split(':');
+            if (s !== null) {
+                result[0] = s[0].toLowerCase();
+                if (stuff[2] !== '') {
+                    result[1] = stuff[2]
+                }
+            }
+        }
+        return result;
+    }
+
+    function parse_adif(text) {
+        let qsos = [];
+        let qso = {};
+        let numrec = 0;
+        let looks_like_adif = false;
+        let lines = text.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (i === 0) {
+                if (line.includes('ARRL Logbook of the World Status Report')) {
+                    looks_like_adif = true;
+                }
+            }
+            let pieces = parse_adif_line(line);
+            switch (pieces.length) {
+                case 1:
+                    if (pieces[0] === 'eoh') {
+                        looks_like_adif = true;
+                        qsos = [];
+                        qso = {};
+                    }
+                    if (pieces[0] === 'eor') {
+                        qsos.push(qso);
+                        qso = {};
+                    }
+                    break;
+                case 2:
+                    if (pieces[0] === 'app_lotw_numrec') {
+                        numrec = parseInt(pieces[1], 0);
+                    } else {
+                        qso[pieces[0]] = pieces[1];
+                    }
+                    break;
+            }
+            if (i > 20 && !looks_like_adif) {
+                i = lines.length;
+                break;
+            }
+        }
+        if (!looks_like_adif) {
+            qsos = null;
+        }
+        return qsos;
+    }
+
+    function mapQsos(qsos) {
+        document.getElementById('messagePanel').style.display = 'none';
+        document.getElementById("adifPanel").style.display = 'none';
+        document.getElementById('map').style.display = 'block';
+        let ffmaMode = document.getElementById('ffmaButton').checked;
+
+        map = drawMap();
+        let grids = getGridsFromQsos(qsos);
+        let username = document.getElementById('loginName').value;
+        let ownCall = document.getElementById('ownCall').value.trim();
+        if (ownCall.length === 0) {
+            ownCall = username;
+        }
+        let band = document.querySelector('input[name="band"]:checked').value;
+        calculateDetails(qsos);
+        if (ffmaMode) {
+            let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
+            draw_grids(map, missingGrids);
+            document.getElementById('header').innerHTML = ownCall.toUpperCase() + ' Unconfirmed FFMA Grids';
+            document.getElementById('detailsPanel').innerHTML = '' + missingGrids.size + ' Unconfirmed FFMA Grid Squares';
+            document.getElementById('footerLeft').style.display = 'block';
+        } else {
+            draw_grids(map, grids);
+            let title = ownCall.toUpperCase() + ' grids confirmed';
+            if (band !== 'all') {
+                title = title + ' on ' + band;
+            }
+            document.getElementById('header').innerHTML = title;
+            document.getElementById('footerLeft').style.display = 'block';
+        }
+
+        map.on('zoomend', function (ev) {
+            let zoom = map.getZoom();
+            let world_size = map.getPixelWorldBounds().getSize();
+            //alert("I think a square is " + (world_size.x / 180.0) + " pixels wide, and " +
+            //    (world_size.y / 180.0) + " pixels tall.");
+              // search for class 'grid-label'
+            ss = document.styleSheets;
+            for (let sheet of ss) {
+                let rs = sheet.cssRules;
+                for (let rule of rs) {
+                    if (".grid-label" === rule.selectorText) {
+                        //alert("zoom " + zoom + " setting size " + size + ", color " + color);
+                        if (zoom < 5) {
+                            rule.style.color = 'rgba(0,0,0,0)';
+                            rule.style.textShadow = '';
+                        } else {
+                            rule.style.color = 'black';
+                            rule.style.textShadow = 'white 0px 0px 4px';
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function processReceivedData(xhr) {
+        if (xhr.status === 200) {
+            let text = xhr.responseText;
+            if (text.startsWith('ARRL Logbook of the World Status Report')) {
+                document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Crunching Data.</p><p>This might take a minute or so.</p>';
+                document.getElementById('adifText').value = text;
+                let qsos = parse_adif(text);
+                if (qsos != null) {
+                    if (qsos.length > 0) { // data is good
+                        mapQsos(qsos);
+                    } else {
+                        showMessage('No QSLS found.');
+                    }
+                }
+            } else {
+                if (text.includes('Username/password incorrect')) {
+                    showMessage('LoTW reports "Username/Password incorrect".');
+                } else {
+                    showMessage('Logbook of the World API call failed.');
+                }
+            }
+        } else {
+            showMessage('Unexpected response: ' + xhr.statusText);
+        }
+    }
+
+    function showMessage(message) {
+        document.getElementById('message').innerHTML = message;
+        document.getElementById('messageButtonPanel').style.display = 'block';
+        document.getElementById('messagePanel').style.display = 'inline-block';
+    }
+
+    function getGridsFromQso(qso) {
+        let grids = new Set();
+        if (qso['gridsquare'] !== undefined) {
+            let gridsquare = qso['gridsquare'].toUpperCase();
+            gridsquare = gridsquare.substr(0, 4);
+            grids.add(gridsquare);
+        }
+        if (qso['vucc_grids'] !== undefined) {
+            let gridsquares = qso['vucc_grids'].toUpperCase().split(',');
+            for (let gridsquare of gridsquares) {
+                gridsquare = gridsquare.substr(0, 4);
+                grids.add(gridsquare);
+            }
+        }
+        return grids;
+    }
+
+    function getGridsFromQsos(qsos) {
+        let grids = {};
+        for (let i = 0; i < qsos.length; i++) {
+            let qso = qsos[i];
+            let qso_grids = getGridsFromQso(qso);
+            for (let grid of qso_grids) {
+                if (!grids[grid]) {
+                    grids[grid] = [];
+                }
+                grids[grid].push(qso);
+            }
+        }
+        return grids;
+    }
+
+    function calculateDetails(qsos) {
+        let stuff = {};
+        for (let qso of qsos) {
+            let qso_grids = getGridsFromQso(qso);
+            // band-mode
+            let bmKey = qso['band'] + '-' + qso['app_lotw_modegroup'];
+            if (!stuff[bmKey]) {
+                stuff[bmKey] = new Set();
+            }
+            for (let grid of qso_grids) {
+                if (!stuff[bmKey].has(grid)) {
+                    stuff[bmKey].add(grid);
+                }
+            }
+            // band-total
+            bmKey = qso['band'];
+            if (!stuff[bmKey]) {
+                stuff[bmKey] = new Set();
+            }
+            for (let grid of qso_grids) {
+                if (!stuff[bmKey].has(grid)) {
+                    stuff[bmKey].add(grid);
+                }
+            }
+            // mode-total
+            bmKey = qso['app_lotw_modegroup'];
+            if (!stuff[bmKey]) {
+                stuff[bmKey] = new Set();
+            }
+            for (let grid of qso_grids) {
+                if (!stuff[bmKey].has(grid)) {
+                    stuff[bmKey].add(grid);
+                }
+            }
+            // all
+            bmKey = '-';
+            if (!stuff[bmKey]) {
+                stuff[bmKey] = new Set();
+            }
+            for (let grid of qso_grids) {
+                if (!stuff[bmKey].has(grid)) {
+                    stuff[bmKey].add(grid);
+                }
+            }
+        }
+
+        let t = '<div class=\'detailsHeading\'>Unique Grids per Band/Mode</div>\n';
+
+        // narrow the bands shown in the table to only the bands that have QSLs
+        let usedBands = [];
+        for (let band of BANDS) {
+            let val = stuff[band];
+            let count = 0;
+            if (val) {
+                count = val.size;
+            }
+            if (count > 0) {
+                usedBands.push(band);
+            }
+        }
+
+        t += '<table class=\'detailsTable\'><tr>';
+        t += '<th style=\'border:0;\'></th>';
+
+        for (let band of usedBands) {
+            t += '<th>' + band + '</th>';
+        }
+        t += '<th>All</th>';
+        t += '</tr>';
+
+        for (let mode of MODES) {
+            t += '<tr>';
+            t += '<th>' + mode + '</th>';
+            for (let band of usedBands) {
+                let bmKey = band + '-' + mode;
+                let val = stuff[bmKey];
+                let count = 0;
+                if (val) {
+                    count = val.size;
+                }
+                t += '<td>' + count + '</td>'
+            }
+            // mode total
+            bmKey = mode;
+            let val = stuff[bmKey];
+            let count = 0;
+            if (val) {
+                count = val.size;
+            }
+            t += '<td>' + count + '</td>';
+            t += '</tr>\n';
+        }
+        t += '<tr>';
+        t += '<th>All</th>';
+        for (let band of usedBands) {
+            let val = stuff[band];
+            let count = 0;
+            if (val) {
+                count = val.size;
+            }
+            t += '<td>' + count + '</td>'
+        }
+        let val = stuff['-'];
+        let count = 0;
+        if (val) {
+            count = val.size;
+        }
+        t += '<td>' + count + '</td>';
+        t += '</tr>\n';
+
+        t += '</table>';
+        document.getElementById('detailsPanel').innerHTML = t;
+
+        // report text
+        t = '<p class="detailsHeading">List of Unique Grids Worked</p><p class="reportText">';
+        count = 0;
+        let grids = Array.from(stuff['-']);
+        grids.sort();
+        for (let grid of grids) {
+            if (count > 19) {
+                t = t + "<br>";
+                count = 0;
+            }
+            t = t + grid + ' ';
+            count++;
+        }
+        t = t + '</p>';
+        t = t + '<p> ' + grids.length + ' Unique Grids</p>'
+        document.getElementById('reportPanel').innerHTML = t;
+    }
+
+    function draw_grids(map, grids) {
+        let biggest = [];
+        for (let square in grids) {
+            if (!biggest) {
+                biggest = grids[square];
+            }
+            if (grids[square].length > biggest.length) {
+                biggest = grids[square];
+            }
+        }
+        for (let square in grids) {
+            addSquare(map, square, grids[square], biggest.length);
+        }
+    }
+
+    function asyncLoad(url, callback) {
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                callback(this);
+            }
+        };
+        xhr.timeout = 6 * 60000; // 6 minutes
+        xhr.ontimeout = function () {
+            showMessage("Request Timed Out");
+        };
+        xhr.open('GET', url, true);
+        xhr.send();
+    }
+
+    function updateAdifUrl() {
+        let username = document.getElementById('loginName').value.trim();
+        let password = '*******';
+        let band = document.querySelector('input[name="band"]:checked').value;
+        let url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
+        if (band !== 'all') {
+            url = url + '&qso_band=' + band;
+        }
+        let startDate = document.getElementById('startDate').value;
+        let endDate = document.getElementById('endDate').value;
+        url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
+        let ownCall = document.getElementById('ownCall').value.trim();
+        if (ownCall.length > 0) {
+            url = url + '&qso_owncall=' + ownCall;
+        }
+        document.getElementById('adifUrlText').innerHTML = url;
+    }
+
+    function bringMyOwnADIF() {
+        document.getElementById('loginPanel').style.display = 'none';
+        document.getElementById('adifPanel').style.display = 'inline-block';
+    }
+
+    function gridMapAdif() {
+        let text = document.getElementById('adifText').value;
+        let qsos = parse_adif(text);
+        if (qsos != null) {
+            if (qsos.length > 0) { // data is good
+                mapQsos(qsos);
+            } else {
+                alert("no QSOs found");
+            }
+        } else {
+            alert("could not parse that adif");
+        }
+    }
+
+    function callLotw() {
+        if (document.getElementById('loginName').checkValidity()) { // && document.getElementById('password').checkValidity()) {
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>';
+            document.getElementById('messageButtonPanel').style.display = 'none';
+            document.getElementById('messagePanel').style.display = 'block';
+            let username = document.getElementById('loginName').value.trim();
+            let password = document.getElementById('password').value;
+            let band = document.querySelector('input[name="band"]:checked').value;
+            let url = '/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
+            if (band !== 'all') {
+                url = url + '&qso_band=' + band;
+            }
+            let startDate = document.getElementById('startDate').value;
+            let endDate = document.getElementById('endDate').value;
+            url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
+            let owncall = document.getElementById('ownCall').value.trim();
+            if (owncall.length > 0) {
+                url = url + '&qso_owncall=' + owncall;
+            }
+            asyncLoad(url, processReceivedData);
+        } else {
+            alert('Check username and password');
+        }
+    }
+
+    function resetLogin() {
+        document.getElementById('map').style.display = 'none';
+        document.getElementById('adifPanel').style.display = 'none';
+        document.getElementById('reportPanel').style.display = 'none';
+        document.getElementById('messageButtonPanel').style.display = 'none';
+        document.getElementById('messagePanel').style.display = 'none';
+        document.getElementById('footerLeft').style.display = 'none';
+        document.getElementById('detailsPanel').style.display = 'none';
+        document.getElementById('message').innerHTML = '';
+        document.getElementById('header').innerHTML = 'Map Grids Confirmed on LoTW';
+        document.getElementById('loginPanel').style.display = 'inline-block';
+    }
+
+    function toggleDetails() {
+        document.getElementById('detailsPanel').style.display = document.getElementById('detailsPanel').style.display !== 'inline-block' ? 'inline-block' : 'none';
+    }
+
+    function toggleReportPanel() {
+        document.getElementById('reportPanel').style.display = document.getElementById('reportPanel').style.display !== 'inline-block' ? 'inline-block' : 'none';
+    }
+
+    function showAdifPanel(b) {
+        document.getElementById('adifPanel').style.display = b ? 'inline-block' : 'none';
+    }
+
+</script>
+</body>
+</html>
