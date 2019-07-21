@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <!-- this is the google analytics site tag for www.n1kdo.com -->
     <!-- please DO NOT use this tracking code... -->
     <!-- Global site tag (gtag.js) - Google Analytics -->
+    <!--
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-55192949-1"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -43,7 +44,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         gtag('js', new Date());
         gtag('config', 'UA-55192949-1');
     </script>
+    -->
     <!-- end google analytics -->
+
+    <!-- leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css"
+          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+          crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"
+            integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
+            crossorigin=""></script>
+
     <style>
         BODY {
             margin: 0;
@@ -66,7 +78,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             top: 10vh;
             position: fixed;
             border: 5px ridge #ccc;
-            z-index: 100;
+            z-index: 1000;
             background-color: aliceblue;
         }
 
@@ -107,7 +119,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             left: 0;
             bottom: 2vh;
             padding: 0.25em;
-            z-index: 1;
+            z-index: 1000;
         }
 
         .detailsTable {
@@ -145,8 +157,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             left: 0;
             width: 100%;
             vertical-align: bottom;
-            height: 2vh;
-            font-size: 2vh;
+            height: 5vh;
+            font-size: 1.2rem;
+            z-index: 9999;
         }
 
         .footerLeft {
@@ -179,10 +192,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             border: 1px solid;
         }
 
+        .grid-label {
+            border: none;
+            border-radius: unset;
+            color: black;
+            background-color: inherit;
+            box-shadow: none;
+            font-family: sans-serif;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: normal;
+            text-shadow: 0 0 4px white;
+        }
+
+        .grid-label:before {
+            border: none;
+        }
+
         .header {
-            height: 8vh;
-            font-size: 7vh;
+            height: 5vh;
+            font-size: 2rem;
             text-align: center;
+        }
+
+        .loginFormDiv {
+            text-align: center;
+            margin: 1em;
         }
 
         .map {
@@ -201,9 +236,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             font-weight: bold;
         }
 
-        .loginFormDiv {
-            text-align: center;
-            margin: 1em;
+        .reportPanel {
+            background-color: aliceblue;
+            border: 5px ridge #ccc;
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 0 0.5em 0 0.5em;
+            z-index: 1000;
+        }
+
+        .reportText {
+            font-family: monospace;
         }
 
         .qsosInfo {
@@ -213,8 +259,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         }
 
     </style>
-    <script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyDk5G43MdBi8sqLUU1UpzcxOe31N53ETTY' defer></script>
-    <script src='https://rawgit.com/googlemaps/js-map-label/gh-pages/src/maplabel-compiled.js' defer></script>
 </head>
 <body onload='loaded()'>
 <div id='header' class='header'>
@@ -231,84 +275,54 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </tr>
             <tr>
                 <td style='text-align: right;'><label for='loginName'>LoTW Username:</label></td>
-                <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField' autofocus
+                <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField'
+                                                     value='n1kdo'
+                                                     autofocus
                                                      onchange="updateAdifUrl()" title="Your LoTW Callsign" required
                                                      pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
                 </td>
             </tr>
             <tr>
                 <td style='text-align: right;'><label for='password'>Password:</label></td>
-                <td style='text-align: left;'><input type='password' minlength="4" maxlength='16' name='password' id='password'
+                <td style='text-align: left;'><input type='password' minlength="4" maxlength='16' name='password'
+                                                     id='password'
                                                      required title="Your LoTW Password" class='formField'></td>
             </tr>
-            <tr><td colspan="2">
-                <div class="paranoids">
-                If you have more than one callsign associated with your LoTW account, you can select just one to analyze.
-                If you only have one callsign, or want to analyze data for all of your callsigns, leave this field blank.
-                </div>
-            </td></tr>
+            <tr>
+                <td colspan="2">
+                    <div class="paranoids">
+                        If you have more than one callsign associated with your LoTW account, you can select just one to analyze.<br>
+                        If you only have one callsign, or want to analyze data for all of your callsigns, leave this field blank.
+                    </div>
+                </td>
+            </tr>
             <tr>
                 <td style='text-align: right;'><label for='ownCall'>Callsign:</label></td>
-                <td style='text-align: left;'><input maxlength='16' name='login' id='ownCall' class='formField' autofocus
-                                                     onchange="updateAdifUrl()" title="Callsign if you have multiple registered with LoTW, else blank"
+                <td style='text-align: left;'><input maxlength='16' name='login' id='ownCall' class='formField'
+                                                     autofocus
+                                                     onchange="updateAdifUrl()"
+                                                     title="Callsign if you have multiple registered with LoTW, else blank"
                                                      pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
                 </td>
             </tr>
             <tr>
-                <td colspan='2'>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='all' class='bandRadio' checked
-                               onchange="updateAdifUrl()">
-                        All Bands
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='160m' class='bandRadio' onchange="updateAdifUrl()">
-                        160M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='80m' class='bandRadio' onchange="updateAdifUrl()">
-                        80M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='60m' class='bandRadio' onchange="updateAdifUrl()">
-                        60M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='40m' class='bandRadio' onchange="updateAdifUrl()">
-                        40M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='30m' class='bandRadio' onchange="updateAdifUrl()">
-                        30M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='20m' class='bandRadio' onchange="updateAdifUrl()">
-                        20M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='17m' class='bandRadio' onchange="updateAdifUrl()">
-                        17M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='15m' class='bandRadio' onchange="updateAdifUrl()">
-                        15M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='12m' class='bandRadio' onchange="updateAdifUrl()">
-                        12M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='10m' class='bandRadio' onchange="updateAdifUrl()">
-                        10M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='6m' class='bandRadio' onchange="updateAdifUrl()">
-                        6M
-                    </label>
-                    <label class='bandLabel'>
-                        <input type='radio' name='band' value='2m' class='bandRadio' onchange="updateAdifUrl()">
-                        2M
-                    </label>
+                <td style='text-align: right;'><label for="bandSelect">Band(s):</label></td>
+                <td style='text-align: left;'>
+                    <select name='bandSelect' id="bandSelect" onchange="updateAdifUrl()">
+                        <option value='all'>All</option>
+                        <option value='160m'>160 M</option>
+                        <option value='80m'>80 M</option>
+                        <option value='60m'>60 M</option>
+                        <option value='40m'>40 M</option>
+                        <option value='30m'>30 M</option>
+                        <option value='20m'>20 M</option>
+                        <option value='17m'>17 M</option>
+                        <option value='15m'>15M</option>
+                        <option value='12m'>12 M</option>
+                        <option value='10m'>10 M</option>
+                        <option value='6m'>6 M</option>
+                        <option value='2m'>2 M</option>
+                    </select>
                 </td>
             </tr>
             <tr>
@@ -356,24 +370,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </div>
 <div id='adifPanel' class='adifPanel'>
     <div>
-        <textarea id='adifText' class='adifText'></textarea>
+        <textarea readonly id='adifText' class='adifText'></textarea>
     </div>
     <div>
-        <input type='button' id='testButton2' value='plot to map' class='testButton' onclick='gridMapAdif()'>
-        <input type='button' id='testButton4' value='start again' class='testButton' onclick='resetLogin()'>
+        <input type='button' value='plot to map' class='testButton' onclick='gridMapAdif()'>
+        <input type='button' value='start again' class='testButton' onclick='resetLogin()'>
     </div>
 </div>
-<div id='detailsPanel' class='detailsPanel'>
-</div>
+<div id='reportPanel' class='reportPanel'></div>
+<div id='detailsPanel' class='detailsPanel'></div>
 <div id='map' class='map'></div>
 <div class='footer'>
     <div id='footerLeft' class='footerLeft' style='display:none'>
         <input type='button' id='detailsButton' class='statusLineButton' value="Details" onClick='toggleDetails()'>
+        <input type='button' id='reportButton' class='statusLineButton' value="Report" onClick='toggleReportPanel()'>
         <input type='button' id='adifButton' class='statusLineButton' value='ADIF' onClick='showAdifPanel(true)'>
         <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
     </div>
     <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180325</div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180805</div>
 </div>
 <script>
     const ffma_grids = [
@@ -421,7 +436,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     const BANDS = ['160M', '80M', '60M', '40M', '30M', '20M', '17M', '15M', '12M', '10M', '6M', '2M', '70CM'];
     const MODES = ['CW', 'DATA', 'PHONE'];
     const COLORMAP = ['#0b0089', '#4100a0', '#6500aa', '#8500aa', '#a4109c', '#c03486',
-                      '#cf4875', '#e3615f', '#f28047', '#fb9b30', '#ffb804', '#fbdc00', '#f0fb00'];
+        '#cf4875', '#e3615f', '#f28047', '#fb9b30', '#ffb804', '#fbdc00', '#f0fb00'];
+
+    let map = null;
 
     function loaded() {
         let today = new Date().toISOString().split('T')[0];
@@ -451,17 +468,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     function convertDate(date) {
         if (date.length === 8) {
-            date = date.substring(0,4) + '-' + date.substring(4,6) + '-' + date.substring(6,8);
+            date = date.substring(0, 4) + '-' + date.substring(4, 6) + '-' + date.substring(6, 8);
         }
         return date;
     }
 
     function qsosData(gridSquare, qsos) {
-        qsos.sort(function(a, b){
+        qsos.sort(function (a, b) {
             let x = a.qso_date + a.call;
             let y = b.qso_date + b.call;
-            if (x < y) {return -1;}
-            if (x > y) {return 1;}
+            if (x < y) {
+                return -1;
+            }
+            if (x > y) {
+                return 1;
+            }
             return 0;
         });
         let data = '';
@@ -483,121 +504,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         let coords = gridToCoordinates(gridSquare);
         let lat = coords['lat'];
         let lon = coords['lng'];
-        let mapcoords = [
-            new google.maps.LatLng(lat, lon),
-            new google.maps.LatLng(lat, lon + 2),
-            new google.maps.LatLng(lat + 1, lon + 2),
-            new google.maps.LatLng(lat + 1, lon),
-            new google.maps.LatLng(lat, lon)
-        ];
-
+        let squarecorners = [[lat, lon], [lat + 1, lon + 2]];
+        // heat map
         let scale = most / COLORMAP.length;
         scale = Math.max(scale, 1);
         let index = Math.trunc(squareQsos.length / scale);
-        index = Math.min(index, COLORMAP.length -1);
+        index = Math.min(index, COLORMAP.length - 1);
         let color = COLORMAP[index];
-
-        let square = new google.maps.Polygon({
-            path: mapcoords,
-            strokeColor: color,
-            strokeOpacity: 1.0,
-            strokeWeight: 0.25,
-            fillColor: color,
-            fillOpacity: 0.33
-        });
-        square.setMap(map);
-        square.center = new google.maps.LatLng(lat + 0.7, lon + 1);
-
-        let infoContent = qsosData(gridSquare, squareQsos);
-        let infoWindow = new google.maps.InfoWindow({
-            content: infoContent,
-            disableAutoPan: true,
-            position: square.center
-        });
-
-        square.addListener('click', function() {
-            infoWindow.open(map);
-        });
-
-        new MapLabel({
-            text: gridSquare.toUpperCase(),
-            position: new google.maps.LatLng(lat + 0.7, lon + 1),
-            map: map,
-            fontSize: 48,
-            fontColor: '#000000',
-            strokeWeight: 8,
-            align: 'center',
-            minZoom: 7
-        });
-        new MapLabel({
-            text: gridSquare.toUpperCase(),
-            position: new google.maps.LatLng(lat + 0.8, lon + 1),
-            map: map,
-            fontSize: 24,
-            fontColor: '#000000',
-            strokeWeight: 8,
-            align: 'center',
-            minZoom: 6,
-            maxZoom: 6
-        });
-        new MapLabel({
-            text: gridSquare.toUpperCase(),
-            position: new google.maps.LatLng(lat + 0.7, lon + 1),
-            map: map,
-            fontSize: 12,
-            fontColor: '#000000',
-            strokeWeight: 4,
-            align: 'center',
-            minZoom: 5,
-            maxZoom: 5
-        });
-        new MapLabel({
-            text: gridSquare.toUpperCase(),
-            position: new google.maps.LatLng(lat + 0.6, lon + 1),
-            map: map,
-            fontSize: 8,
-            fontColor: '#000000',
-            strokeWeight: 2,
-            align: 'center',
-            minZoom: 4,
-            maxZoom: 4
+        let square = L.rectangle(squarecorners, {color: "#000", weight: 0.5, fillColor: color, fillOpacity: 0.33});
+        square.bindTooltip(gridSquare.toUpperCase(),
+            {
+                permanent: true,
+                className: "grid-label",
+                offset: [0, 0],
+                direction: "center"
+            }
+        );
+        square.addTo(map);
+        square.on('click', function (ev) {
+            let infoContent = qsosData(gridSquare, squareQsos);
+            square.bindPopup(infoContent, {maxHeight:200}).openPopup();
         });
     }
 
     function drawMap() {
-        let mapStyle = [
-            {
-                elementType: "geometry",
-                stylers: [{color: "#f5f5f5"}]
-            },
-            {
-                featureType: "water",
-                elementType: "geometry",
-                stylers: [{"color": "#c9c9c9"}]
-            },
-            {
-                featureType: "water",
-                elementType: "labels.text.fill",
-                stylers: [{"color": "#9e9e9e"}]
-            },
-            {
-                featureType: "administrative.country",
-                elementType: "geometry.stroke",
-                stylers: [{"color": "#000000"}, {"visibility": "on"}]
-            },
-            {
-                featureType: "administrative.province",
-                elementType: "geometry.stroke",
-                stylers: [{"color": "#000000"}, {"visibility": "on"}]
-            },
-        ];
-        let mapProp = {
-            center: new google.maps.LatLng(37, -97),
-            zoom: 4,
+        if (map != null) {
+            map.remove();
+        }
+        let newMap = L.map('map', {
+            center: [37, -97],
+            zoom: 5,
             minZoom: 2,
-            styles: mapStyle
-        };
-        return new google.maps.Map(document.getElementById('map'), mapProp);
+            maxZoom: 18,
+        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(newMap);
+        L.control.scale().addTo(newMap);
+        return newMap;
     }
 
     function parse_adif_line(line) {
@@ -665,14 +609,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         document.getElementById("adifPanel").style.display = 'none';
         document.getElementById('map').style.display = 'block';
         let ffmaMode = document.getElementById('ffmaButton').checked;
-        let map = drawMap();
+        map = drawMap();
         let grids = getGridsFromQsos(qsos);
         let username = document.getElementById('loginName').value;
-        let ownCall =  document.getElementById('ownCall').value.trim();
+        let ownCall = document.getElementById('ownCall').value.trim();
         if (ownCall.length === 0) {
             ownCall = username;
         }
-        let band = document.querySelector('input[name="band"]:checked').value;
+        let band_select = document.getElementById('bandSelect')
+        let band = band_select.options[band_select.selectedIndex].value;
         calculateDetails(qsos);
         if (ffmaMode) {
             let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
@@ -689,6 +634,30 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             document.getElementById('header').innerHTML = title;
             document.getElementById('footerLeft').style.display = 'block';
         }
+
+        map.on('zoomend', function (ev) {
+            let zoom = map.getZoom();
+            let world_size = map.getPixelWorldBounds().getSize();
+            //alert("I think a square is " + (world_size.x / 180.0) + " pixels wide, and " +
+            //    (world_size.y / 180.0) + " pixels tall.");
+              // search for class 'grid-label'
+            ss = document.styleSheets;
+            for (let sheet of ss) {
+                let rs = sheet.cssRules;
+                for (let rule of rs) {
+                    if (".grid-label" === rule.selectorText) {
+                        //alert("zoom " + zoom + " setting size " + size + ", color " + color);
+                        if (zoom < 5) {
+                            rule.style.color = 'rgba(0,0,0,0)';
+                            rule.style.textShadow = '';
+                        } else {
+                            rule.style.color = 'black';
+                            rule.style.textShadow = 'white 0px 0px 4px';
+                        }
+                    }
+                }
+            }
+        });
     }
 
     function processReceivedData(xhr) {
@@ -702,27 +671,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     if (qsos.length > 0) { // data is good
                         mapQsos(qsos);
                     } else {
-                        document.getElementById('message').innerHTML = 'No QSLS found.';
-                        document.getElementById('messageButtonPanel').style.display = 'block';
-                        document.getElementById('messagePanel').style.display = 'inline-block';
+                        showMessage('No QSLS found.');
                     }
                 }
             } else {
                 if (text.includes('Username/password incorrect')) {
-                    document.getElementById('message').innerHTML = 'LoTW reports "Username/Password incorrect".';
-                    document.getElementById('messageButtonPanel').style.display = 'block';
-                    document.getElementById('messagePanel').style.display = 'inline-block';
+                    showMessage('LoTW reports "Username/Password incorrect".');
                 } else {
-                    document.getElementById('message').innerHTML = 'Logbook of the World API call failed.';
-                    document.getElementById('messageButtonPanel').style.display = 'block';
-                    document.getElementById('messagePanel').style.display = 'inline-block';
+                    showMessage('Logbook of the World API call failed.');
                 }
             }
         } else {
-            document.getElementById('message').innerHTML = 'Unexpected response: ' + xhr.statusText;
-            document.getElementById('messageButtonPanel').style.display = 'block';
-            document.getElementById('messagePanel').style.display = 'inline-block';
+            showMessage('Unexpected response: ' + xhr.statusText);
         }
+    }
+
+    function showMessage(message) {
+        document.getElementById('message').innerHTML = message;
+        document.getElementById('messageButtonPanel').style.display = 'block';
+        document.getElementById('messagePanel').style.display = 'inline-block';
     }
 
     function getGridsFromQso(qso) {
@@ -869,6 +836,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         t += '</table>';
         document.getElementById('detailsPanel').innerHTML = t;
+
+        // report text
+        t = '<p class="detailsHeading">List of Unique Grids Worked</p><p class="reportText">';
+        count = 0;
+        let grids = Array.from(stuff['-']);
+        grids.sort();
+        for (let grid of grids) {
+            if (count > 19) {
+                t = t + "<br>";
+                count = 0;
+            }
+            t = t + grid + ' ';
+            count++;
+        }
+        t = t + '</p>';
+        t = t + '<p> ' + grids.length + ' Unique Grids</p>'
+        document.getElementById('reportPanel').innerHTML = t;
     }
 
     function draw_grids(map, grids) {
@@ -893,6 +877,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 callback(this);
             }
         };
+        xhr.timeout = 6 * 60000; // 6 minutes
+        xhr.ontimeout = function () {
+            showMessage("Request Timed Out");
+        };
         xhr.open('GET', url, true);
         xhr.send();
     }
@@ -900,7 +888,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function updateAdifUrl() {
         let username = document.getElementById('loginName').value.trim();
         let password = '*******';
-        let band = document.querySelector('input[name="band"]:checked').value;
+        let band_select = document.getElementById('bandSelect')
+        let band = band_select.options[band_select.selectedIndex].value;
         let url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
         if (band !== 'all') {
             url = url + '&qso_band=' + band;
@@ -942,8 +931,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             document.getElementById('messagePanel').style.display = 'block';
             let username = document.getElementById('loginName').value.trim();
             let password = document.getElementById('password').value;
-            let band = document.querySelector('input[name="band"]:checked').value;
-            let url = 'lotwreport.php' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
+            let band_select = document.getElementById('bandSelect');
+            let band = band_select.options[band_select.selectedIndex].value;
+
+            let url = '/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
             if (band !== 'all') {
                 url = url + '&qso_band=' + band;
             }
@@ -963,6 +954,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function resetLogin() {
         document.getElementById('map').style.display = 'none';
         document.getElementById('adifPanel').style.display = 'none';
+        document.getElementById('reportPanel').style.display = 'none';
         document.getElementById('messageButtonPanel').style.display = 'none';
         document.getElementById('messagePanel').style.display = 'none';
         document.getElementById('footerLeft').style.display = 'none';
@@ -976,9 +968,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         document.getElementById('detailsPanel').style.display = document.getElementById('detailsPanel').style.display !== 'inline-block' ? 'inline-block' : 'none';
     }
 
+    function toggleReportPanel() {
+        document.getElementById('reportPanel').style.display = document.getElementById('reportPanel').style.display !== 'inline-block' ? 'inline-block' : 'none';
+    }
+
     function showAdifPanel(b) {
         document.getElementById('adifPanel').style.display = b ? 'inline-block' : 'none';
     }
+
 </script>
 </body>
 </html>
