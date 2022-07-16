@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/bin/python
 # -*- coding: utf-8 -*-
 """
 lotwreport.py: proxy for ARRL LoTW lotwreport.adi web service, which does not
@@ -57,7 +57,8 @@ for arg in valid_args:
         url = url + pfx + arg + '=' + form[arg].value
         pfx = '&'
 
-if callsign.lower() == 'n1kdo' and password is None and client.startswith('192.168.1'):
+# if callsign.lower() == 'n1kdo' and password is None and client.startswith('192.168.1'):
+if password is None and client.startswith('192.168.1'):
     print 'Content-Type: application/x-arrl-adif'
     print
     try:
@@ -71,7 +72,8 @@ else:
     req = urllib2.Request(url)
     response = urllib2.urlopen(req, None, 600)
     data = response.read()
-    if callsign == 'n1kdo' and 'ARRL Logbook of the World Status Report' in data:
+#    if callsign == 'n1kdo' and 'ARRL Logbook of the World Status Report' in data:
+    if 'ARRL Logbook of the World Status Report' in data:
         filename = callsign.lower() + '.adi'
         with open(filename, 'w') as file:
             file.write(data)

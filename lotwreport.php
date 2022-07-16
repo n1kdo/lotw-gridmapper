@@ -57,7 +57,7 @@ if ((strncmp("192.168.1.", $client,10) === 0) && $password === '') { // look for
 } else {
     $response = @file_get_contents($url) or "";
     if (strlen($response) > 0 && strpos($response, 'ARRL Logbook of the World Status Report') === 0) {
-        if (strtolower($login) === 'n1kdo') { // cache my ADIF
+        if (true || strtolower($login) === 'n1kdo') { // cache my ADIF
             $fp = fopen(strtolower($login) . '.adi', 'w');
             if ($fp) {
                 fwrite($fp, $response);

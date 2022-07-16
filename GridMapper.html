@@ -205,6 +205,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             text-shadow: 0 0 4px white;
         }
 
+        .grid-label-missing {
+            border: none;
+            border-radius: unset;
+            color: red;
+            background-color: inherit;
+            box-shadow: none;
+            font-family: sans-serif;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: normal;
+            text-shadow: 0 0 4px white;
+        }
+
         .grid-label:before {
             border: none;
         }
@@ -370,7 +383,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </div>
 <div id='adifPanel' class='adifPanel'>
     <div>
-        <textarea readonly id='adifText' class='adifText'></textarea>
+        <textarea id='adifText' class='adifText'></textarea>
     </div>
     <div>
         <input type='button' value='plot to map' class='testButton' onclick='gridMapAdif()'>
@@ -511,11 +524,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         let index = Math.trunc(squareQsos.length / scale);
         index = Math.min(index, COLORMAP.length - 1);
         let color = COLORMAP[index];
-        let square = L.rectangle(squarecorners, {color: "#000", weight: 0.5, fillColor: color, fillOpacity: 0.33});
-        square.bindTooltip(gridSquare.toUpperCase(),
+        let opacity = (squareQsos.length === 0) ? 0 : 0.33;
+        let square = L.rectangle(squarecorners, {color: "#000", weight: 0.5, fillColor: color, fillOpacity: opacity});
+        let labelClass = (squareQsos.length === 0) ? "grid-label-missing" : "grid-label";
+                square.bindTooltip(gridSquare.toUpperCase(),
             {
                 permanent: true,
-                className: "grid-label",
+                className: labelClass,
                 offset: [0, 0],
                 direction: "center"
             }
@@ -620,10 +635,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         let band = band_select.options[band_select.selectedIndex].value;
         calculateDetails(qsos);
         if (ffmaMode) {
-            let missingGrids = new Set([...ffma_grids].filter(x => !grids.has(x)));
-            draw_grids(map, missingGrids);
+            let missingGrids = [];
+            for (let grid of ffma_grids) {
+                if (grids[grid] == null) {
+                    grids[grid] = [];
+                    missingGrids.push(grid);
+                }
+            }
+            draw_grids(map, grids);
             document.getElementById('header').innerHTML = ownCall.toUpperCase() + ' Unconfirmed FFMA Grids';
-            document.getElementById('detailsPanel').innerHTML = '' + missingGrids.size + ' Unconfirmed FFMA Grid Squares';
+            document.getElementById('detailsPanel').innerHTML = '' + missingGrids.length + ' Unconfirmed FFMA Grid Squares';
             document.getElementById('footerLeft').style.display = 'block';
         } else {
             draw_grids(map, grids);
@@ -655,6 +676,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                             rule.style.textShadow = 'white 0px 0px 4px';
                         }
                     }
+                    if (".grid-label-missing" === rule.selectorText) {
+                        //alert("zoom " + zoom + " setting size " + size + ", color " + color);
+                        if (zoom < 5) {
+                            rule.style.color = 'rgba(0,0,0,0)';
+                            rule.style.textShadow = '';
+                        } else {
+                            rule.style.color = 'red';
+                            rule.style.textShadow = 'white 0px 0px 4px';
+                        }
+                    }
+
+
                 }
             }
         });
