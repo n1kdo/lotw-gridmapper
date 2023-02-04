@@ -11,7 +11,7 @@ So don't try to call it on my server, it won't work.
 #
 # LICENSE:
 #
-# Copyright (c) 2018, Jeffrey B. Otterson, N1KDO
+# Copyright (c) 2018, 2023 Jeffrey B. Otterson, N1KDO
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ So don't try to call it on my server, it won't work.
 import cgi
 import os
 import urllib2
+import traceback
 
 valid_args = ['login', 'password', 'qso_query', 'qso_qsl',
               'qso_qslsince', 'qso_qsorxsince', 'qso_owncall', 'qso_callsign',
@@ -45,39 +46,48 @@ valid_args = ['login', 'password', 'qso_query', 'qso_qsl',
               'qso_enddate', 'qso_endtime',
               'qso_mydetail', 'qso_qsldetail', 'qso_withown']
 
-form = cgi.FieldStorage()
-callsign = form['login'].value if 'login' in form else None
-password = form['password'].value if 'password' in form else None
-client = os.environ["REMOTE_ADDR"]
 
-pfx = '?'
-url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi'
-for arg in valid_args:
-    if arg in form:
-        url = url + pfx + arg + '=' + form[arg].value
-        pfx = '&'
+def main():
+    form = cgi.FieldStorage()
+    callsign = form['login'].value if 'login' in form else None
+    password = form['password'].value if 'password' in form else None
+    client = os.environ.get('REMOTE_ADDR') or ''
 
-# if callsign.lower() == 'n1kdo' and password is None and client.startswith('192.168.1'):
-if password is None and client.startswith('192.168.1'):
-    print 'Content-Type: application/x-arrl-adif'
-    print
-    try:
-        filename = callsign + '.adi'
-        with open(filename, 'r') as file:
-            data = file.read()
-        print data
-    except IOError:
-        print 'no cache'
-else:
-    req = urllib2.Request(url)
-    response = urllib2.urlopen(req, None, 600)
-    data = response.read()
-#    if callsign == 'n1kdo' and 'ARRL Logbook of the World Status Report' in data:
-    if 'ARRL Logbook of the World Status Report' in data:
-        filename = callsign.lower() + '.adi'
-        with open(filename, 'w') as file:
-            file.write(data)
-    info = response.info()
-    print 'Content-Type: %s' % info['Content-Type']
-    print
-    print data
+    pfx = '?'
+    url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi'
+    for arg in valid_args:
+        if arg in form:
+            url = url + pfx + arg + '=' + form[arg].value
+            pfx = '&'
+    if password is None and client.startswith('192.168.1'):  # debugging hack for front end.
+        print('Content-Type: application/x-arrl-adif')
+        print('')
+        try:
+            filename = callsign + '.adi'
+            with open(filename, 'r') as file:
+                data = file.read()
+            print(data)
+        except IOError:
+            print('no cache')
+    else:
+        try:
+            req = urllib2.Request(url)
+            response = urllib2.urlopen(req, None, 600)
+            data = response.read()
+            if 'ARRL Logbook of the World Status Report' in data:
+                filename = callsign.lower() + '.adi'
+                with open(filename, 'w') as file:
+                    file.write(data)
+            info = response.info()
+            print('Content-Type: %s' % info['Content-Type'])
+            print('')
+            print(data)
+        except Exception as e:
+            print('Content-Type: text/text')
+            print('')
+            print(e)
+            traceback.print_exc()
+
+
+if __name__ == '__main__':
+    main()
