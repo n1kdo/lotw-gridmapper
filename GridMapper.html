@@ -35,16 +35,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <meta name='viewport' content='width=device-width, initial-scale=0.75'>
     <!-- this is the google analytics site tag for www.n1kdo.com -->
     <!-- please DO NOT use this tracking code... -->
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <!--
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-55192949-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-55192949-1');
-    </script>
-    -->
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BTTZG4974S"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BTTZG4974S');
+  </script>
     <!-- end google analytics -->
 
     <!-- leaflet -->
@@ -514,7 +513,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         return data;
     }
 
-    function addSquare(map, gridSquare, squareQsos, most) {
+    function addSquare(map, gridSquare, squareQsos, most, ffmaMode) {
         let coords = gridToCoordinates(gridSquare);
         let lat = coords['lat'];
         let lon = coords['lng'];
@@ -525,8 +524,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         let index = Math.trunc(squareQsos.length / scale);
         index = Math.min(index, COLORMAP.length - 1);
         let color = COLORMAP[index];
+        let box_color = "#000";
         let opacity = (squareQsos.length === 0) ? 0 : 0.33;
-        let square = L.rectangle(squarecorners, {color: "#000", weight: 0.5, fillColor: color, fillOpacity: opacity});
+        if (ffmaMode) {
+            if (ffma_grids.includes(gridSquare)) {
+                box_color = "#f00";
+            }
+        }
+        let square = L.rectangle(squarecorners, {color: box_color, weight: 0.5, fillColor: color, fillOpacity: opacity});
         let labelClass = (squareQsos.length === 0) ? "grid-label-missing" : "grid-label";
                 square.bindTooltip(gridSquare.toUpperCase(),
             {
@@ -643,12 +648,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                     missingGrids.push(grid);
                 }
             }
-            draw_grids(map, grids);
+            draw_grids(map, grids, true);
             document.getElementById('header').innerHTML = ownCall.toUpperCase() + ' Unconfirmed FFMA Grids';
             document.getElementById('detailsPanel').innerHTML = '' + missingGrids.length + ' Unconfirmed FFMA Grid Squares';
             document.getElementById('footerLeft').style.display = 'block';
         } else {
-            draw_grids(map, grids);
+            draw_grids(map, grids, false);
             let title = ownCall.toUpperCase() + ' grids confirmed';
             if (band !== 'all') {
                 title = title + ' on ' + band;
@@ -889,7 +894,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         document.getElementById('reportPanel').innerHTML = t;
     }
 
-    function draw_grids(map, grids) {
+    function draw_grids(map, grids, ffmaMode) {
         let biggest = [];
         for (let square in grids) {
             if (!biggest) {
@@ -900,7 +905,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             }
         }
         for (let square in grids) {
-            addSquare(map, square, grids[square], biggest.length);
+            addSquare(map, square, grids[square], biggest.length, ffmaMode);
         }
     }
 
