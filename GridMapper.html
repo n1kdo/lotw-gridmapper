@@ -401,7 +401,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
     </div>
     <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20180805</div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20230710</div>
 </div>
 <script>
     const ffma_grids = [
@@ -639,9 +639,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         }
         let band_select = document.getElementById('bandSelect')
         let band = band_select.options[band_select.selectedIndex].value;
-        calculateDetails(qsos);
+        let missingGrids = [];
         if (ffmaMode) {
-            let missingGrids = [];
             for (let grid of ffma_grids) {
                 if (grids[grid] == null) {
                     grids[grid] = [];
@@ -649,8 +648,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 }
             }
             draw_grids(map, grids, true);
-            document.getElementById('header').innerHTML = ownCall.toUpperCase() + ' Unconfirmed FFMA Grids';
-            document.getElementById('detailsPanel').innerHTML = '' + missingGrids.length + ' Unconfirmed FFMA Grid Squares';
+            document.getElementById('header').innerHTML = ownCall.toUpperCase() + ' FFMA Grids';
+            document.getElementById('detailsPanel').innerHTML = '' + missingGrids.length + ' FFMA Grid Squares';
             document.getElementById('footerLeft').style.display = 'block';
         } else {
             draw_grids(map, grids, false);
@@ -661,6 +660,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             document.getElementById('header').innerHTML = title;
             document.getElementById('footerLeft').style.display = 'block';
         }
+        calculateDetails(qsos, missingGrids);
 
         map.on('zoomend', function (ev) {
             let zoom = map.getZoom();
@@ -763,7 +763,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         return grids;
     }
 
-    function calculateDetails(qsos) {
+    function calculateDetails(qsos, missingGrids) {
         let stuff = {};
         for (let qso of qsos) {
             let qso_grids = getGridsFromQso(qso);
@@ -889,8 +889,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             t = t + grid + ' ';
             count++;
         }
-        t = t + '</p>';
-        t = t + '<p> ' + grids.length + ' Unique Grids</p>'
+        t = t + '</p><p>' + grids.length + ' Unique Grids</p>';
+
+        if (missingGrids.length > 0) {
+            t = t + '<p class="detailsHeading">Needed FFMA Grids</p><p class="reportText">';
+            count = 0;
+            for (let grid of missingGrids) {
+                if (count > 19) {
+                    t = t + "<br>";
+                    count = 0;
+                }
+                t = t + grid + ' ';
+                count++;
+            }
+            t = t + '</p><p>' + missingGrids.length + ' Needed FFMA Grids</p>';
+        }
         document.getElementById('reportPanel').innerHTML = t;
     }
 
