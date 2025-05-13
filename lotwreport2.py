@@ -1,12 +1,14 @@
 #!/bin/python
 # -*- coding: utf-8 -*-
 """
-lotwreport.py: proxy for ARRL LoTW lotwreport.adi web service, which does not
+lotwreport2.py: proxy for ARRL LoTW lotwreport.adi web service, which does not
 support CORS headers and thus cannot be called from a script that is loaded
 from any other server.  This CGI must be served from the same host name as
 any script that wishes to call it.  Because I do not want other peoples'
 scripts to call this service, it deliberately does not support CORS, either.
 So don't try to call it on my server, it won't work.
+
+Note: this is the obsolete Python 2 version.
 """
 #
 # LICENSE:
