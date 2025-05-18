@@ -37,7 +37,6 @@ So don't try to call it on my server, it won't work.
 import argparse
 import os
 import urllib.error
-# import urllib.parse
 import urllib.request
 import sys
 import traceback
@@ -104,7 +103,8 @@ def call_lotw(params):
         try:
             req = urllib.request.Request(url)
             response = urllib.request.urlopen(req, None, 600)
-            data = response.read().decode('utf-8')
+            data_bytes = response.read()
+            data = data_bytes.decode('iso-8859-1')  # ,'ignore')
             if 'ARRL Logbook of the World Status Report' in data:
                 filename = callsign.lower() + '.adi'
                 with open(filename, 'w') as phile:
