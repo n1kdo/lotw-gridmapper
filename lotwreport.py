@@ -104,7 +104,7 @@ def call_lotw(params):
             req = urllib.request.Request(url)
             response = urllib.request.urlopen(req, None, 600)
             data_bytes = response.read()
-            data = data_bytes.decode('iso-8859-1')  # ,'ignore')
+            data = data_bytes.decode('ascii', 'ignore')
             if 'ARRL Logbook of the World Status Report' in data:
                 filename = callsign.lower() + '.adi'
                 with open(filename, 'w') as phile:
