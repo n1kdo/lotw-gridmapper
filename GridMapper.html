@@ -5,7 +5,7 @@ GridMapper.html -- read Logbook of the World, draw confirmed grids on a map.
 
 LICENSE:
 
-Copyright (c) 2017, 2018 Jeffrey B. Otterson, N1KDO
+Copyright (c) 2017, 2018, 2025 Jeffrey B. Otterson, N1KDO
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -335,6 +335,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                         <option value='6m'>6 M</option>
                         <option value='2m'>2 M</option>
                         <option value='70cm'>70 cm</option>
+                        <option value='33cm'>33 cm</option>
+                        <option value='23cm'>23 cm</option>
+                        <option value='13cm'>13 cm</option>
                     </select>
                 </td>
             </tr>
@@ -401,7 +404,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
     </div>
     <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20250513</div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20250712</div>
 </div>
 <script>
     const ffma_grids = [
@@ -446,7 +449,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         'FN11', 'FN12', 'FN13', 'FN14', 'FN20', 'FN21', 'FN22', 'FN23', 'FN24', 'FN25', 'FN30', 'FN31',
         'FN32', 'FN33', 'FN34', 'FN35', 'FN41', 'FN42', 'FN43', 'FN44', 'FN45', 'FN46', 'FN51', 'FN53',
         'FN54', 'FN55', 'FN56', 'FN57', 'FN64', 'FN65', 'FN66', 'FN67'];
-    const BANDS = ['160M', '80M', '60M', '40M', '30M', '20M', '17M', '15M', '12M', '10M', '6M', '2M', '70CM'];
+    const BANDS = ['160M', '80M', '60M', '40M', '30M', '20M', '17M', '15M', '12M', '10M', '6M', '2M', '70CM', '33CM', '23CM', '13CM'];
     const MODES = ['CW', 'DATA', 'PHONE'];
     const COLORMAP = ['#0b0089', '#4100a0', '#6500aa', '#8500aa', '#a4109c', '#c03486',
         '#cf4875', '#e3615f', '#f28047', '#fb9b30', '#ffb804', '#fbdc00', '#f0fb00'];
