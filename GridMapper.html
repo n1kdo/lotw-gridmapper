@@ -5,7 +5,7 @@ GridMapper.html -- read Logbook of the World, draw confirmed grids on a map.
 
 LICENSE:
 
-Copyright (c) 2017, 2018, 2025 Jeffrey B. Otterson, N1KDO
+Copyright (c) 2017, 2018, 2025, 2026 Jeffrey B. Otterson, N1KDO
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -->
-<html>
+<html lang="en">
 <head>
     <title>N1KDO LoTW Grid Mapper</title>
     <meta name='viewport' content='width=device-width, initial-scale=0.75'>
@@ -272,7 +272,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     </style>
 </head>
-<body onload='loaded()'>
+<body>
 <div id='header' class='header'>
     Map Grids Confirmed on LoTW
 </div>
@@ -404,8 +404,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
     </div>
     <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 20250712</div>
+    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 2026-01-09</div>
 </div>
+</body>
 <script>
     const ffma_grids = [
         'CM79', 'CM86', 'CM87', 'CM88', 'CM89', 'CM93', 'CM94', 'CM95', 'CM96', 'CM97', 'CM98', 'CM99',
@@ -469,14 +470,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         document.getElementById('loginPanel').style.display = 'inline-block';
     }
 
+    const A_CODE = 'A'.charCodeAt(0);
+    const R_CODE = 'R'.charCodeAt(0)
+    const ZERO_CODE = '0'.charCodeAt(0);
+    const NINE_CODE = '9'.charCodeAt(0);
     function gridToCoordinates(gridSquare) {
-        gridSquare = gridSquare.toLowerCase();
-        const a = 'a'.charCodeAt(0);
-        const zero = '0'.charCodeAt(0);
-        let lon = (gridSquare.charCodeAt(0) - a) * 20.0;
-        let lat = (gridSquare.charCodeAt(1) - a) * 10.0;
-        lon += (gridSquare.charCodeAt(2) - zero) * 2.0;
-        lat += (gridSquare.charCodeAt(3) - zero);
+        if (!gridSquare || gridSquare.length !== 4) return null;
+        const c0 = gridSquare.charCodeAt(0);
+        if (c0 < A_CODE  || c0 > R_CODE) return null;
+        const c1 = gridSquare.charCodeAt(1);
+        if (c1 < A_CODE  || c1 > R_CODE) return null;
+        const c2 = gridSquare.charCodeAt(2);
+        if (c2 < ZERO_CODE  || c2 > NINE_CODE) return null;
+        const c3 = gridSquare.charCodeAt(3);
+        if (c3 < ZERO_CODE  || c3 > NINE_CODE) return null;
+        let lon = (c0 - A_CODE) * 20.0 + (c2 - ZERO_CODE) * 2.0;
+        let lat = (c1 - A_CODE) * 10.0 + (c3 - ZERO_CODE);
         lon = lon - 180;
         lat = lat - 90;
         return {lat: lat, lng: lon};
@@ -569,18 +578,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function parse_adif_line(line) {
-        let result = [];
-        let stuff = line.match('<(.*)>(.*)');
-        if (stuff !== null) {
-            let s = stuff[1].split(':');
-            if (s !== null) {
-                result[0] = s[0].toLowerCase();
-                if (stuff[2] !== '') {
-                    result[1] = stuff[2]
-                }
-            }
-        }
-        return result;
+        const lt = line.indexOf('<');
+        const gt = line.indexOf('>');
+        if (lt === -1 || gt === -1) return null;
+
+        const key = line.slice(lt + 1, gt).split(':')[0].toLowerCase();
+        const value = line.slice(gt + 1);
+        return value ? [key, value] : [key];
     }
 
     function parse_adif(text) {
@@ -594,9 +598,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             if (i === 0) {
                 if (line.includes('ARRL Logbook of the World Status Report')) {
                     looks_like_adif = true;
+                    continue;
                 }
             }
+            if (line.length === 0) continue;
             let pieces = parse_adif_line(line);
+            if (pieces === null) continue;
             switch (pieces.length) {
                 case 1:
                     if (pieces[0] === 'eoh') {
@@ -1031,6 +1038,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         document.getElementById('adifPanel').style.display = b ? 'inline-block' : 'none';
     }
 
+    document.addEventListener("DOMContentLoaded", loaded);
 </script>
-</body>
 </html>
