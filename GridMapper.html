@@ -35,25 +35,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <meta name='viewport' content='width=device-width, initial-scale=0.75'>
     <!-- this is the google analytics site tag for www.n1kdo.com -->
     <!-- please DO NOT use this tracking code... -->
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BTTZG4974S"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BTTZG4974S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-    gtag('config', 'G-BTTZG4974S');
-  </script>
+        gtag('config', 'G-BTTZG4974S');
+    </script>
     <!-- end google analytics -->
 
     <!-- leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css"
-          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
-          crossorigin=""/>
+        integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+        crossorigin="" />
     <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"
-            integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
-            crossorigin=""></script>
+        integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
+        crossorigin=""></script>
 
     <style>
         BODY {
@@ -270,142 +270,149 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             max-height: 20em;
         }
 
+        /* Zoom-based label hiding optimization */
+        .zoom-hide-labels .grid-label,
+        .zoom-hide-labels .grid-label-missing {
+            color: rgba(0, 0, 0, 0) !important;
+            text-shadow: none !important;
+        }
     </style>
 </head>
+
 <body>
-<div id='header' class='header'>
-    Map Grids Confirmed on LoTW
-</div>
-<div id='loginPanel' class='floatingPanel'>
-    <form id='loginForm'>
-        <table style='border-spacing: 0.75em;'>
-            <tbody>
-            <tr>
-                <td colspan='2' align='center'>
-                    Enter your <b>LoTW</b> credentials.
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align: right;'><label for='loginName'>LoTW Username:</label></td>
+    <div id='header' class='header'>
+        Map Grids Confirmed on LoTW
+    </div>
+    <div id='loginPanel' class='floatingPanel'>
+        <form id='loginForm'>
+            <table style='border-spacing: 0.75em;'>
+                <tbody>
+                    <tr>
+                        <td colspan='2' align='center'>
+                            Enter your <b>LoTW</b> credentials.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: right;'><label for='loginName'>LoTW Username:</label></td>
                 <td style='text-align: left;'><input maxlength='16' name='login' id='loginName' class='formField'
                                                      value='n1kdo'
                                                      autofocus
                                                      onchange="updateAdifUrl()" title="Your LoTW Callsign" required
-                                                     pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align: right;'><label for='password'>Password:</label></td>
+                                pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: right;'><label for='password'>Password:</label></td>
                 <td style='text-align: left;'><input type='password' minlength="4" maxlength='16' name='password'
                                                      id='password'
                                                      required title="Your LoTW Password" class='formField'></td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="paranoids">
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="paranoids">
                         If you have more than one callsign associated with your LoTW account, you can select just one to analyze.<br>
                         If you only have one callsign, or want to analyze data for all of your callsigns, leave this field blank.
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align: right;'><label for='ownCall'>Callsign:</label></td>
-                <td style='text-align: left;'><input maxlength='16' name='login' id='ownCall' class='formField'
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: right;'><label for='ownCall'>Callsign:</label></td>
+                        <td style='text-align: left;'><input maxlength='16' name='login' id='ownCall' class='formField'
                                                      autofocus
                                                      onchange="updateAdifUrl()"
-                                                     title="Callsign if you have multiple registered with LoTW, else blank"
-                                                     pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align: right;'><label for="bandSelect">Band(s):</label></td>
-                <td style='text-align: left;'>
-                    <select name='bandSelect' id="bandSelect" onchange="updateAdifUrl()">
-                        <option value='all'>All</option>
-                        <option value='160m'>160 M</option>
-                        <option value='80m'>80 M</option>
-                        <option value='60m'>60 M</option>
-                        <option value='40m'>40 M</option>
-                        <option value='30m'>30 M</option>
-                        <option value='20m'>20 M</option>
-                        <option value='17m'>17 M</option>
-                        <option value='15m'>15M</option>
-                        <option value='12m'>12 M</option>
-                        <option value='10m'>10 M</option>
-                        <option value='6m'>6 M</option>
-                        <option value='2m'>2 M</option>
-                        <option value='70cm'>70 cm</option>
-                        <option value='33cm'>33 cm</option>
-                        <option value='23cm'>23 cm</option>
-                        <option value='13cm'>13 cm</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td style='text-align: right;'><label for='startDate'>Start Date:</label></td>
-                <td style='text-align: left;'><input type='date' id='startDate' class='formField'
-                                                     min='1900-01-01' onchange="updateAdifUrl()"></td>
-            </tr>
-            <tr>
-                <td style='text-align: right;'><label for='endDate'>End Date:</label></td>
-                <td style='text-align: left;'><input type='date' id='endDate' class='formField'
-                                                     min='1900-01-01' onchange="updateAdifUrl()"></td>
-            </tr>
-            <tr>
-                <td style='text-align: right;'><label for='ffmaButton'>Show Unworked FFMA:</label></td>
-                <td style='text-align: left;'><input type='checkbox' id='ffmaButton'></td>
-            </tr>
-            <tr>
-                <td colspan="2" align="center">
-                    <button type='button' onclick='callLotw()'>Get ADIF and Plot</button>
-                </td>
-            </tr>
-            <tr>
-                <td colspan='2'>
-                    <div class="paranoids">
-                        You may wish to bring your own ADIF file, rather than fetch it through my server.<br>
-                        Use the URL below to fetch your ADIF, then use the button below to load and map it.
-                    </div>
-                    <div id="adifUrlText" class="adifUrlText"></div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan='2' align='center'>
-                    <button type='button' onclick='bringMyOwnADIF()'>Bring my own ADIF</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </form>
-</div>
-<div id="messagePanel" class="floatingPanel">
-    <div id='message' class='loginFormDiv'>Please Wait.</div>
-    <div id='messageButtonPanel' class='loginFormDiv' style='display:none;'>
-        <button type='button' onclick='resetLogin()'>Try Again</button>
+                                title="Callsign if you have multiple registered with LoTW, else blank"
+                                pattern="^((.{1,3}\/){0,1})([a-zA-Z0-9]{1,3}[0123456789][a-zA-Z0-9]{0,3}[a-zA-Z])((\/.{1,3}){0,1})$">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: right;'><label for="bandSelect">Band(s):</label></td>
+                        <td style='text-align: left;'>
+                            <select name='bandSelect' id="bandSelect" onchange="updateAdifUrl()">
+                                <option value='all'>All</option>
+                                <option value='160m'>160 M</option>
+                                <option value='80m'>80 M</option>
+                                <option value='60m'>60 M</option>
+                                <option value='40m'>40 M</option>
+                                <option value='30m'>30 M</option>
+                                <option value='20m'>20 M</option>
+                                <option value='17m'>17 M</option>
+                                <option value='15m'>15M</option>
+                                <option value='12m'>12 M</option>
+                                <option value='10m'>10 M</option>
+                                <option value='6m'>6 M</option>
+                                <option value='2m'>2 M</option>
+                                <option value='70cm'>70 cm</option>
+                                <option value='33cm'>33 cm</option>
+                                <option value='23cm'>23 cm</option>
+                                <option value='13cm'>13 cm</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: right;'><label for='startDate'>Start Date:</label></td>
+                        <td style='text-align: left;'><input type='date' id='startDate' class='formField'
+                                min='1900-01-01' onchange="updateAdifUrl()"></td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: right;'><label for='endDate'>End Date:</label></td>
+                        <td style='text-align: left;'><input type='date' id='endDate' class='formField'
+                                                             min='1900-01-01' onchange="updateAdifUrl()"></td>
+                    </tr>
+                    <tr>
+                        <td style='text-align: right;'><label for='ffmaButton'>Show Unworked FFMA:</label></td>
+                        <td style='text-align: left;'><input type='checkbox' id='ffmaButton'></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center">
+                            <button type='button' onclick='callLotw()'>Get ADIF and Plot</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2'>
+                            <div class="paranoids">
+                                You may wish to bring your own ADIF file, rather than fetch it through my server.<br>
+                                Use the URL below to fetch your ADIF, then use the button below to load and map it.
+                            </div>
+                            <div id="adifUrlText" class="adifUrlText"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan='2' align='center'>
+                            <button type='button' onclick='bringMyOwnADIF()'>Bring my own ADIF</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
     </div>
-</div>
-<div id='adifPanel' class='adifPanel'>
-    <div>
-        <textarea id='adifText' class='adifText'></textarea>
+    <div id="messagePanel" class="floatingPanel">
+        <div id='message' class='loginFormDiv'>Please Wait.</div>
+        <div id='messageButtonPanel' class='loginFormDiv' style='display:none;'>
+            <button type='button' onclick='resetLogin()'>Try Again</button>
+        </div>
     </div>
-    <div>
-        <input type='button' value='plot to map' class='testButton' onclick='gridMapAdif()'>
-        <input type='button' value='start again' class='testButton' onclick='resetLogin()'>
+    <div id='adifPanel' class='adifPanel'>
+        <div>
+            <textarea id='adifText' class='adifText'></textarea>
+        </div>
+        <div>
+            <input type='button' value='plot to map' class='testButton' onclick='gridMapAdif()'>
+            <input type='button' value='start again' class='testButton' onclick='resetLogin()'>
+        </div>
     </div>
-</div>
-<div id='reportPanel' class='reportPanel'></div>
-<div id='detailsPanel' class='detailsPanel'></div>
-<div id='map' class='map'></div>
-<div class='footer'>
-    <div id='footerLeft' class='footerLeft' style='display:none'>
-        <input type='button' id='detailsButton' class='statusLineButton' value="Details" onClick='toggleDetails()'>
+    <div id='reportPanel' class='reportPanel'></div>
+    <div id='detailsPanel' class='detailsPanel'></div>
+    <div id='map' class='map'></div>
+    <div class='footer'>
+        <div id='footerLeft' class='footerLeft' style='display:none'>
+            <input type='button' id='detailsButton' class='statusLineButton' value="Details" onClick='toggleDetails()'>
         <input type='button' id='reportButton' class='statusLineButton' value="Report" onClick='toggleReportPanel()'>
-        <input type='button' id='adifButton' class='statusLineButton' value='ADIF' onClick='showAdifPanel(true)'>
-        <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
+            <input type='button' id='adifButton' class='statusLineButton' value='ADIF' onClick='showAdifPanel(true)'>
+            <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
+        </div>
+        <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
+        <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 2026-01-11</div>
     </div>
-    <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-    <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 2026-01-09</div>
-</div>
 </body>
 <script>
     const ffma_grids = [
@@ -456,6 +463,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         '#cf4875', '#e3615f', '#f28047', '#fb9b30', '#ffb804', '#fbdc00', '#f0fb00'];
 
     let map = null;
+    let gridLayer = null;
 
     function loaded() {
         let today = new Date().toISOString().split('T')[0];
@@ -475,20 +483,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     const ZERO_CODE = '0'.charCodeAt(0);
     const NINE_CODE = '9'.charCodeAt(0);
     function gridToCoordinates(gridSquare) {
-        if (!gridSquare || gridSquare.length !== 4) return null;
+        if (!gridSquare || (gridSquare.length !== 4 && gridSquare.length !== 6)) return null;
         const c0 = gridSquare.charCodeAt(0);
-        if (c0 < A_CODE  || c0 > R_CODE) return null;
+        if (c0 < A_CODE || c0 > R_CODE) return null;
         const c1 = gridSquare.charCodeAt(1);
-        if (c1 < A_CODE  || c1 > R_CODE) return null;
+        if (c1 < A_CODE || c1 > R_CODE) return null;
         const c2 = gridSquare.charCodeAt(2);
-        if (c2 < ZERO_CODE  || c2 > NINE_CODE) return null;
+        if (c2 < ZERO_CODE || c2 > NINE_CODE) return null;
         const c3 = gridSquare.charCodeAt(3);
-        if (c3 < ZERO_CODE  || c3 > NINE_CODE) return null;
+        if (c3 < ZERO_CODE || c3 > NINE_CODE) return null;
         let lon = (c0 - A_CODE) * 20.0 + (c2 - ZERO_CODE) * 2.0;
         let lat = (c1 - A_CODE) * 10.0 + (c3 - ZERO_CODE);
         lon = lon - 180;
         lat = lat - 90;
-        return {lat: lat, lng: lon};
+        return { lat: lat, lng: lon };
     }
 
     function convertDate(date) {
@@ -526,26 +534,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function addSquare(map, gridSquare, squareQsos, most, ffmaMode) {
-        let coords = gridToCoordinates(gridSquare);
-        let lat = coords['lat'];
-        let lon = coords['lng'];
-        let squarecorners = [[lat, lon], [lat + 1, lon + 2]];
+        const coords = gridToCoordinates(gridSquare);
+        if (!coords) return;
+        const lat = coords.lat;
+        const lon = coords.lng;
+        const squareCorners = [[lat, lon], [lat + 1, lon + 2]];
+
         // heat map
         let scale = most / COLORMAP.length;
         scale = Math.max(scale, 1);
         let index = Math.trunc(squareQsos.length / scale);
         index = Math.min(index, COLORMAP.length - 1);
-        let color = COLORMAP[index];
-        let box_color = "#000";
-        let opacity = (squareQsos.length === 0) ? 0 : 0.33;
+        const color = COLORMAP[index];
+        let boxColor = "#000";
+        const opacity = (squareQsos.length === 0) ? 0 : 0.33;
         if (ffmaMode) {
             if (ffma_grids.includes(gridSquare)) {
-                box_color = "#f00";
+                boxColor = "#f00";
             }
         }
-        let square = L.rectangle(squarecorners, {color: box_color, weight: 0.5, fillColor: color, fillOpacity: opacity});
-        let labelClass = (squareQsos.length === 0) ? "grid-label-missing" : "grid-label";
-                square.bindTooltip(gridSquare.toUpperCase(),
+        const square = L.rectangle(squareCorners, { color: boxColor, weight: 0.5, fillColor: color, fillOpacity: opacity });
+        const labelClass = (squareQsos.length === 0) ? "grid-label-missing" : "grid-label";
+        square.bindTooltip(gridSquare.toUpperCase(),
             {
                 permanent: true,
                 className: labelClass,
@@ -553,84 +563,93 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 direction: "center"
             }
         );
-        square.addTo(map);
-        square.on('click', function (ev) {
-            let infoContent = qsosData(gridSquare, squareQsos);
-            square.bindPopup(infoContent, {maxHeight:200}).openPopup();
+        square.addTo(gridLayer);
+        square.on('click', (ev) => {
+            const infoContent = qsosData(gridSquare, squareQsos);
+            square.bindPopup(infoContent, { maxHeight: 200 }).openPopup();
         });
     }
 
     function drawMap() {
-        if (map != null) {
-            map.remove();
+        if (map === null) {
+            map = L.map('map', {
+                center: [37, -97],
+                zoom: 5,
+                minZoom: 2,
+                maxZoom: 18,
+            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            L.control.scale().addTo(map);
+
+            map.on('zoomend', () => {
+                const zoom = map.getZoom();
+                const mapElement = document.getElementById('map');
+                if (zoom < 5) {
+                    mapElement.classList.add('zoom-hide-labels');
+                } else {
+                    mapElement.classList.remove('zoom-hide-labels');
+                }
+            });
         }
-        let newMap = L.map('map', {
-            center: [37, -97],
-            zoom: 5,
-            minZoom: 2,
-            maxZoom: 18,
-        });
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(newMap);
-        L.control.scale().addTo(newMap);
-        return newMap;
-    }
 
-    function parse_adif_line(line) {
-        const lt = line.indexOf('<');
-        const gt = line.indexOf('>');
-        if (lt === -1 || gt === -1) return null;
-
-        const key = line.slice(lt + 1, gt).split(':')[0].toLowerCase();
-        const value = line.slice(gt + 1);
-        return value ? [key, value] : [key];
+        if (gridLayer) {
+            gridLayer.clearLayers();
+        } else {
+            gridLayer = L.layerGroup().addTo(map);
+        }
+        return map;
     }
 
     function parse_adif(text) {
-        let qsos = [];
-        let qso = {};
-        let numrec = 0;
-        let looks_like_adif = false;
-        let lines = text.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].trim();
-            if (i === 0) {
-                if (line.includes('ARRL Logbook of the World Status Report')) {
-                    looks_like_adif = true;
-                    continue;
+        const looksLikeAdif = text.includes('ARRL Logbook of the World Status Report') ||
+            text.toUpperCase().includes('<EOH>') ||
+            text.toUpperCase().includes('<EOR>');
+        if (!looksLikeAdif) return null;
+
+        const qsos = [];
+        let currentQso = {};
+
+        let eohIndex = text.toUpperCase().indexOf('<EOH>');
+        let pos = eohIndex !== -1 ? eohIndex + 5 : 0;
+
+        while (pos < text.length) {
+            let tagStart = text.indexOf('<', pos);
+            if (tagStart === -1) break;
+            let tagEnd = text.indexOf('>', tagStart);
+            if (tagEnd === -1) break;
+
+            let tagContent = text.substring(tagStart + 1, tagEnd);
+            let parts = tagContent.split(':');
+            let tagName = parts[0].toLowerCase();
+            let len = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+
+            pos = tagEnd + 1;
+            let value = "";
+            if (len > 0) {
+                value = text.substring(pos, pos + len);
+                pos += len;
+            } else if (tagName !== 'eor' && tagName !== 'eoh') {
+                // If no length, attempt to find next tag or end of line (loose parsing)
+                let nextTag = text.indexOf('<', pos);
+                if (nextTag !== -1) {
+                    value = text.substring(pos, nextTag).trim();
+                } else {
+                    value = text.substring(pos).trim();
                 }
             }
-            if (line.length === 0) continue;
-            let pieces = parse_adif_line(line);
-            if (pieces === null) continue;
-            switch (pieces.length) {
-                case 1:
-                    if (pieces[0] === 'eoh') {
-                        looks_like_adif = true;
-                        qsos = [];
-                        qso = {};
-                    }
-                    if (pieces[0] === 'eor') {
-                        qsos.push(qso);
-                        qso = {};
-                    }
-                    break;
-                case 2:
-                    if (pieces[0] === 'app_lotw_numrec') {
-                        numrec = parseInt(pieces[1], 0);
-                    } else {
-                        qso[pieces[0]] = pieces[1];
-                    }
-                    break;
+
+            if (tagName === 'eor') {
+                if (Object.keys(currentQso).length > 0) {
+                    qsos.push(currentQso);
+                }
+                currentQso = {};
+            } else if (tagName === 'eoh') {
+                currentQso = {};
+            } else {
+                currentQso[tagName] = value;
             }
-            if (i > 20 && !looks_like_adif) {
-                i = lines.length;
-                break;
-            }
-        }
-        if (!looks_like_adif) {
-            qsos = null;
         }
         return qsos;
     }
@@ -639,19 +658,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         document.getElementById('messagePanel').style.display = 'none';
         document.getElementById("adifPanel").style.display = 'none';
         document.getElementById('map').style.display = 'block';
-        let ffmaMode = document.getElementById('ffmaButton').checked;
-        map = drawMap();
-        let grids = getGridsFromQsos(qsos);
-        let username = document.getElementById('loginName').value;
+        const ffmaMode = document.getElementById('ffmaButton').checked;
+        drawMap();
+        const grids = getGridsFromQsos(qsos);
+        const username = document.getElementById('loginName').value;
         let ownCall = document.getElementById('ownCall').value.trim();
         if (ownCall.length === 0) {
             ownCall = username;
         }
-        let band_select = document.getElementById('bandSelect')
-        let band = band_select.options[band_select.selectedIndex].value;
-        let missingGrids = [];
+        const band_select = document.getElementById('bandSelect')
+        const band = band_select.options[band_select.selectedIndex].value;
+        const missingGrids = [];
         if (ffmaMode) {
-            for (let grid of ffma_grids) {
+            for (const grid of ffma_grids) {
                 if (grids[grid] == null) {
                     grids[grid] = [];
                     missingGrids.push(grid);
@@ -671,42 +690,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             document.getElementById('footerLeft').style.display = 'block';
         }
         calculateDetails(qsos, missingGrids);
-
-        map.on('zoomend', function (ev) {
-            let zoom = map.getZoom();
-            let world_size = map.getPixelWorldBounds().getSize();
-            //alert("I think a square is " + (world_size.x / 180.0) + " pixels wide, and " +
-            //    (world_size.y / 180.0) + " pixels tall.");
-              // search for class 'grid-label'
-            ss = document.styleSheets;
-            for (let sheet of ss) {
-                let rs = sheet.cssRules;
-                for (let rule of rs) {
-                    if (".grid-label" === rule.selectorText) {
-                        //alert("zoom " + zoom + " setting size " + size + ", color " + color);
-                        if (zoom < 5) {
-                            rule.style.color = 'rgba(0,0,0,0)';
-                            rule.style.textShadow = '';
-                        } else {
-                            rule.style.color = 'black';
-                            rule.style.textShadow = 'white 0px 0px 4px';
-                        }
-                    }
-                    if (".grid-label-missing" === rule.selectorText) {
-                        //alert("zoom " + zoom + " setting size " + size + ", color " + color);
-                        if (zoom < 5) {
-                            rule.style.color = 'rgba(0,0,0,0)';
-                            rule.style.textShadow = '';
-                        } else {
-                            rule.style.color = 'red';
-                            rule.style.textShadow = 'white 0px 0px 4px';
-                        }
-                    }
-
-
-                }
-            }
-        });
     }
 
     function processReceivedData(xhr) {
@@ -745,13 +728,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         let grids = new Set();
         if (qso['gridsquare'] !== undefined) {
             let gridsquare = qso['gridsquare'].toUpperCase();
-            gridsquare = gridsquare.substr(0, 4);
+            gridsquare = gridsquare.substring(0, 4);
             grids.add(gridsquare);
         }
         if (qso['vucc_grids'] !== undefined) {
             let gridsquares = qso['vucc_grids'].toUpperCase().split(',');
             for (let gridsquare of gridsquares) {
-                gridsquare = gridsquare.substr(0, 4);
+                gridsquare = gridsquare.substring(0, 4);
                 grids.add(gridsquare);
             }
         }
@@ -774,145 +757,71 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function calculateDetails(qsos, missingGrids) {
-        let stuff = {};
-        for (let qso of qsos) {
-            let qso_grids = getGridsFromQso(qso);
-            // band-mode
-            let bmKey = qso['band'] + '-' + qso['app_lotw_modegroup'];
-            if (!stuff[bmKey]) {
-                stuff[bmKey] = new Set();
-            }
-            for (let grid of qso_grids) {
-                if (!stuff[bmKey].has(grid)) {
-                    stuff[bmKey].add(grid);
-                }
-            }
-            // band-total
-            bmKey = qso['band'];
-            if (!stuff[bmKey]) {
-                stuff[bmKey] = new Set();
-            }
-            for (let grid of qso_grids) {
-                if (!stuff[bmKey].has(grid)) {
-                    stuff[bmKey].add(grid);
-                }
-            }
-            // mode-total
-            bmKey = qso['app_lotw_modegroup'];
-            if (!stuff[bmKey]) {
-                stuff[bmKey] = new Set();
-            }
-            for (let grid of qso_grids) {
-                if (!stuff[bmKey].has(grid)) {
-                    stuff[bmKey].add(grid);
-                }
-            }
-            // all
-            bmKey = '-';
-            if (!stuff[bmKey]) {
-                stuff[bmKey] = new Set();
-            }
-            for (let grid of qso_grids) {
-                if (!stuff[bmKey].has(grid)) {
-                    stuff[bmKey].add(grid);
-                }
-            }
+        const stats = {
+            '-': new Set() // Total unique grids
+        };
+
+        for (const qso of qsos) {
+            const qsoGrids = getGridsFromQso(qso);
+            const band = qso['band'];
+            const mode = qso['app_lotw_modegroup'];
+            const bmKey = `${band}-${mode}`;
+
+            [bmKey, band, mode, '-'].forEach(key => {
+                if (!stats[key]) stats[key] = new Set();
+                qsoGrids.forEach(grid => stats[key].add(grid));
+            });
         }
 
         let t = '<div class=\'detailsHeading\'>Unique Grids per Band/Mode</div>\n';
 
         // narrow the bands shown in the table to only the bands that have QSLs
-        let usedBands = [];
-        for (let band of BANDS) {
-            let val = stuff[band];
-            let count = 0;
-            if (val) {
-                count = val.size;
-            }
-            if (count > 0) {
-                usedBands.push(band);
-            }
+        const usedBands = BANDS.filter(band => (stats[band]?.size || 0) > 0);
+
+        t += '<table class=\'detailsTable\'><tr><th style=\'border:0;\'></th>';
+        usedBands.forEach(band => t += `<th>${band}</th>`);
+        t += '<th>All</th></tr>';
+
+        for (const mode of MODES) {
+            t += `<tr><th>${mode}</th>`;
+            usedBands.forEach(band => {
+                const count = stats[`${band}-${mode}`]?.size || 0;
+                t += `<td>${count}</td>`;
+            });
+            t += `<td>${stats[mode]?.size || 0}</td></tr>\n`;
         }
 
-        t += '<table class=\'detailsTable\'><tr>';
-        t += '<th style=\'border:0;\'></th>';
-
-        for (let band of usedBands) {
-            t += '<th>' + band + '</th>';
-        }
-        t += '<th>All</th>';
-        t += '</tr>';
-
-        for (let mode of MODES) {
-            t += '<tr>';
-            t += '<th>' + mode + '</th>';
-            for (let band of usedBands) {
-                let bmKey = band + '-' + mode;
-                let val = stuff[bmKey];
-                let count = 0;
-                if (val) {
-                    count = val.size;
-                }
-                t += '<td>' + count + '</td>'
-            }
-            // mode total
-            bmKey = mode;
-            let val = stuff[bmKey];
-            let count = 0;
-            if (val) {
-                count = val.size;
-            }
-            t += '<td>' + count + '</td>';
-            t += '</tr>\n';
-        }
-        t += '<tr>';
-        t += '<th>All</th>';
-        for (let band of usedBands) {
-            let val = stuff[band];
-            let count = 0;
-            if (val) {
-                count = val.size;
-            }
-            t += '<td>' + count + '</td>'
-        }
-        let val = stuff['-'];
-        let count = 0;
-        if (val) {
-            count = val.size;
-        }
-        t += '<td>' + count + '</td>';
-        t += '</tr>\n';
-
-        t += '</table>';
+        t += '<tr><th>All</th>';
+        usedBands.forEach(band => t += `<td>${stats[band]?.size || 0}</td>`);
+        t += `<td>${stats['-'].size}</td></tr></table>`;
         document.getElementById('detailsPanel').innerHTML = t;
 
         // report text
         t = '<p class="detailsHeading">List of Unique Grids Worked</p><p class="reportText">';
-        count = 0;
-        let grids = Array.from(stuff['-']);
-        grids.sort();
-        for (let grid of grids) {
+        let count = 0;
+        const grids = Array.from(stats['-']).sort();
+        for (const grid of grids) {
             if (count > 19) {
-                t = t + "<br>";
+                t += "<br>";
                 count = 0;
             }
-            t = t + grid + ' ';
+            t += grid + ' ';
             count++;
         }
-        t = t + '</p><p>' + grids.length + ' Unique Grids</p>';
+        t += `</p><p>${grids.length} Unique Grids</p>`;
 
         if (missingGrids.length > 0) {
-            t = t + '<p class="detailsHeading">Needed FFMA Grids</p><p class="reportText">';
+            t += '<p class="detailsHeading">Needed FFMA Grids</p><p class="reportText">';
             count = 0;
-            for (let grid of missingGrids) {
+            for (const grid of missingGrids) {
                 if (count > 19) {
-                    t = t + "<br>";
+                    t += "<br>";
                     count = 0;
                 }
-                t = t + grid + ' ';
+                t += grid + ' ';
                 count++;
             }
-            t = t + '</p><p>' + missingGrids.length + ' Needed FFMA Grids</p>';
+            t += `</p><p>${missingGrids.length} Needed FFMA Grids</p>`;
         }
         document.getElementById('reportPanel').innerHTML = t;
     }
@@ -948,20 +857,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function updateAdifUrl() {
-        let username = document.getElementById('loginName').value.trim();
-        let password = '*******';
-        let band_select = document.getElementById('bandSelect')
-        let band = band_select.options[band_select.selectedIndex].value;
-        let url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
+        const username = document.getElementById('loginName').value.trim();
+        const password = '*******';
+        const bandSelect = document.getElementById('bandSelect');
+        const band = bandSelect.options[bandSelect.selectedIndex].value;
+        let url = `https://lotw.arrl.org/lotwuser/lotwreport.adi?login=${username}&password=${password}&qso_query=1&qso_qsl=yes&qso_qsldetail=yes`;
+
         if (band !== 'all') {
-            url = url + '&qso_band=' + band;
+            url += `&qso_band=${band}`;
         }
-        let startDate = document.getElementById('startDate').value;
-        let endDate = document.getElementById('endDate').value;
-        url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
-        let ownCall = document.getElementById('ownCall').value.trim();
+
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        url += `&qso_startdate=${startDate}&qso_enddate=${endDate}`;
+
+        const ownCall = document.getElementById('ownCall').value.trim();
         if (ownCall.length > 0) {
-            url = url + '&qso_owncall=' + ownCall;
+            url += `&qso_owncall=${ownCall}`;
         }
         document.getElementById('adifUrlText').innerHTML = url;
     }
@@ -972,10 +884,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function gridMapAdif() {
-        let text = document.getElementById('adifText').value;
-        let qsos = parse_adif(text);
-        if (qsos != null) {
-            if (qsos.length > 0) { // data is good
+        const text = document.getElementById('adifText').value;
+        const qsos = parse_adif(text);
+        if (qsos) {
+            if (qsos.length > 0) {
                 mapQsos(qsos);
             } else {
                 alert("no QSOs found");
@@ -986,26 +898,30 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function callLotw() {
-        if (document.getElementById('loginName').checkValidity()) { // && document.getElementById('password').checkValidity()) {
+        const loginNameElt = document.getElementById('loginName');
+        if (loginNameElt.checkValidity()) {
             document.getElementById('loginPanel').style.display = 'none';
             document.getElementById('message').innerHTML = '<p>Please Wait.</p><p>Fetching QSLs from LoTW.</p><p>This might take a minute or so.</p>';
             document.getElementById('messageButtonPanel').style.display = 'none';
             document.getElementById('messagePanel').style.display = 'block';
-            let username = document.getElementById('loginName').value.trim();
-            let password = document.getElementById('password').value;
-            let band_select = document.getElementById('bandSelect');
-            let band = band_select.options[band_select.selectedIndex].value;
 
-            let url = '/lotwuser/lotwreport.adi' + '?login=' + username + '&password=' + password + '&qso_query=1&qso_qsl=yes&qso_qsldetail=yes';
+            const username = loginNameElt.value.trim();
+            const password = document.getElementById('password').value;
+            const bandSelect = document.getElementById('bandSelect');
+            const band = bandSelect.options[bandSelect.selectedIndex].value;
+
+            let url = `/lotwuser/lotwreport.adi?login=${username}&password=${password}&qso_query=1&qso_qsl=yes&qso_qsldetail=yes`;
             if (band !== 'all') {
-                url = url + '&qso_band=' + band;
+                url += `&qso_band=${band}`;
             }
-            let startDate = document.getElementById('startDate').value;
-            let endDate = document.getElementById('endDate').value;
-            url = url + '&qso_startdate=' + startDate + '&qso_enddate=' + endDate;
-            let owncall = document.getElementById('ownCall').value.trim();
-            if (owncall.length > 0) {
-                url = url + '&qso_owncall=' + owncall;
+
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            url += `&qso_startdate=${startDate}&qso_enddate=${endDate}`;
+
+            const ownCall = document.getElementById('ownCall').value.trim();
+            if (ownCall.length > 0) {
+                url += `&qso_owncall=${ownCall}`;
             }
             asyncLoad(url, processReceivedData);
         } else {
@@ -1014,30 +930,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     function resetLogin() {
-        document.getElementById('map').style.display = 'none';
-        document.getElementById('adifPanel').style.display = 'none';
-        document.getElementById('reportPanel').style.display = 'none';
-        document.getElementById('messageButtonPanel').style.display = 'none';
-        document.getElementById('messagePanel').style.display = 'none';
-        document.getElementById('footerLeft').style.display = 'none';
-        document.getElementById('detailsPanel').style.display = 'none';
+        ['map', 'adifPanel', 'reportPanel', 'messageButtonPanel', 'messagePanel', 'footerLeft', 'detailsPanel'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
         document.getElementById('message').innerHTML = '';
         document.getElementById('header').innerHTML = 'Map Grids Confirmed on LoTW';
         document.getElementById('loginPanel').style.display = 'inline-block';
     }
 
-    function toggleDetails() {
-        document.getElementById('detailsPanel').style.display = document.getElementById('detailsPanel').style.display !== 'inline-block' ? 'inline-block' : 'none';
-    }
+    const toggleDetails = () => {
+        const panel = document.getElementById('detailsPanel');
+        panel.style.display = panel.style.display !== 'inline-block' ? 'inline-block' : 'none';
+    };
 
-    function toggleReportPanel() {
-        document.getElementById('reportPanel').style.display = document.getElementById('reportPanel').style.display !== 'inline-block' ? 'inline-block' : 'none';
-    }
+    const toggleReportPanel = () => {
+        const panel = document.getElementById('reportPanel');
+        panel.style.display = panel.style.display !== 'inline-block' ? 'inline-block' : 'none';
+    };
 
-    function showAdifPanel(b) {
-        document.getElementById('adifPanel').style.display = b ? 'inline-block' : 'none';
-    }
+    const showAdifPanel = (show) => {
+        document.getElementById('adifPanel').style.display = show ? 'inline-block' : 'none';
+    };
 
     document.addEventListener("DOMContentLoaded", loaded);
 </script>
+
 </html>
