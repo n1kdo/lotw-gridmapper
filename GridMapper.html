@@ -411,7 +411,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
         </div>
         <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-        <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 2026-01-11</div>
+        <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 2026-06-07</div>
     </div>
 </body>
 <script>
@@ -829,6 +829,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function draw_grids(map, grids, ffmaMode) {
         let biggest = [];
         for (let square in grids) {
+            if (ffmaMode && !ffma_grids.includes(square)) continue;
             if (!biggest) {
                 biggest = grids[square];
             }
@@ -837,7 +838,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             }
         }
         for (let square in grids) {
-            addSquare(map, square, grids[square], biggest.length, ffmaMode);
+            if (!(ffmaMode && !ffma_grids.includes(square))) {
+                addSquare(map, square, grids[square], biggest.length, ffmaMode);
+            }
         }
     }
 
@@ -905,8 +908,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             document.getElementById('messageButtonPanel').style.display = 'none';
             document.getElementById('messagePanel').style.display = 'block';
 
-            const username = loginNameElt.value.trim();
-            const password = document.getElementById('password').value;
+            const username = encodeURIComponent(loginNameElt.value.trim());
+            const password = encodeURIComponent(document.getElementById('password').value);
             const bandSelect = document.getElementById('bandSelect');
             const band = bandSelect.options[bandSelect.selectedIndex].value;
 
