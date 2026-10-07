@@ -411,7 +411,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <input type='button' id='againButton' class='statusLineButton' value='Again' onClick='resetLogin()'>
         </div>
         <div id='footerMid' class='footerMid'><a href='https://github.com/n1kdo/lotw-gridmapper'>GitHub</a></div>
-        <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 2026-06-07</div>
+        <div id='footerRight' class='footerRight'><a href='https://www.n1kdo.com'>N1KDO</a> 2026-10-07</div>
     </div>
 </body>
 <script>
@@ -847,11 +847,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     function asyncLoad(url, callback) {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
-            if (this.readyState === 4) {
+            if (this.readyState === 4 && this.status !== 0) {
                 callback(this);
             }
         };
-        xhr.timeout = 6 * 60000; // 6 minutes
+        xhr.timeout = 5 * 60000; // 5 minutes
         xhr.ontimeout = function () {
             showMessage("Request Timed Out");
         };

@@ -65,12 +65,7 @@ def get_request():
         else:
             body.append(line)
     qry = os.environ['QUERY_STRING']
-    sq = qry.split('&')
-    params = {}
-    for field in sq:
-        kv = field.split('=')
-        if len(kv) == 2:
-            params[kv[0]] = kv[1]
+    params = dict(urllib.parse.parse_qsl(qry))
 
     client = os.environ.get('REMOTE_ADDR') or ''
     params['client'] = client
@@ -79,17 +74,9 @@ def get_request():
 
 
 def call_lotw(params):
-    callsign = urllib.parse.quote(params.get('login'))
-    password = urllib.parse.quote(params.get('password'))
-    client = urllib.parse.quote(params.get('client'))
-
-    pfx = '?'
-    url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi'
-    for key in params.keys():
-        if key in valid_args:
-            val = urllib.parse.quote(params.get(key))
-            url = url + pfx + key + '=' + val
-            pfx = '&'
+    callsign = params.get('login') or ''
+    password = params.get('password')
+    client = params.get('client') or ''
 
     if password is None and client.startswith('192.168.1'):  # debugging hack for front end.
         print('Content-Type: application/x-arrl-adif')
@@ -101,29 +88,44 @@ def call_lotw(params):
             print(data)
         except IOError:
             print('no cache')
-    else:
-        try:
-            req = urllib.request.Request(url)
-            response = urllib.request.urlopen(req, None, 600)
-            data_bytes = response.read()
-            data = data_bytes.decode('ascii', 'ignore')
-            if 'ARRL Logbook of the World Status Report' in data:
-                filename = callsign.lower() + '.adi'
-                with open(filename, 'w') as phile:
-                    phile.write(data)
-                info = response.info()
-                print('Content-Type: %s' % info['Content-Type'])
-                print('')
-                print(data)
-            elif '<I>Username/password incorrect</I>' in data:
-                print('Content-Type: text/text')
-                print('')
-                print('Error: wrong username or password.')
-        except Exception as e:
+        return
+
+    if not callsign or not password:
+        print('Content-Type: text/text')
+        print('')
+        print('Error: missing login or password.')
+        return
+
+    pfx = '?'
+    url = 'https://lotw.arrl.org/lotwuser/lotwreport.adi'
+    for key in params.keys():
+        if key in valid_args:
+            val = urllib.parse.quote(params.get(key))
+            url = url + pfx + key + '=' + val
+            pfx = '&'
+
+    try:
+        req = urllib.request.Request(url)
+        response = urllib.request.urlopen(req, None, 300)
+        data_bytes = response.read()
+        data = data_bytes.decode('ascii', 'ignore')
+        if 'ARRL Logbook of the World Status Report' in data:
+            filename = callsign.lower() + '.adi'
+            with open(filename, 'w') as phile:
+                phile.write(data)
+            info = response.info()
+            print('Content-Type: %s' % info['Content-Type'])
+            print('')
+            print(data)
+        elif '<I>Username/password incorrect</I>' in data:
             print('Content-Type: text/text')
             print('')
-            print(e)
-            traceback.print_exc()
+            print('Error: wrong username or password.')
+    except Exception as e:
+        print('Content-Type: text/text')
+        print('')
+        print(e)
+        traceback.print_exc()
 
 
 if __name__ == '__main__':
